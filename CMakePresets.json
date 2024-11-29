@@ -250,5 +250,19 @@
             "inherits": "test-common",
             "configurePreset": "unixlike-clang-release"
         }
+    ],
+    "buildPresets": [
+        {
+            "name": "unixlike-gcc-debug",
+            "displayName": "gcc Debug",
+            "description": "Target Unix-like OS with the gcc compiler, debug build type",
+            "configurePreset": "unixlike-gcc-debug"
+        },
+        {
+            "name": "unixlike-gcc-release",
+            "displayName": "gcc Release",
+            "description": "Target Unix-like OS with the gcc compiler, release build type",
+            "configurePreset": "unixlike-gcc-release"
+        }
     ]
 }
