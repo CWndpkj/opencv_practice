@@ -4,7 +4,7 @@ on:
   release:
     types: [published]
   push:
-    tags:
+    tags: "*"
     branches:
       - main
       - develop
@@ -46,9 +46,9 @@ jobs:
         build_shared:
           - OFF
         # exclude:
-          # mingw is determined by this author to be too buggy to support
-          # - os: windows-2022
-          #   compiler: gcc-13
+        # mingw is determined by this author to be too buggy to support
+        # - os: windows-2022
+        #   compiler: gcc-13
 
         include:
           # Add appropriate variables for gcov version required. This will intentionally break
