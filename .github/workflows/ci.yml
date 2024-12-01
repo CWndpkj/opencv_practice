@@ -152,10 +152,10 @@ jobs:
           opencppcoverage: true
 
       - name: Conifigure Conan
-        working-directory: ~/.conan2
-        run: conan profile detect
+        working-directory: ${HOME}/.conan2
+        run: conan profile detect &&
           echo "tools.system.package_manager:mode=install
-          tools.build:skip_test=True" >> global.conf
+          tools.build:skip_test=True" >> global.conf &&
           echo "[options]
           *:shared=True" >> profiles/default
 
