@@ -65,6 +65,7 @@ int main( [[maybe_unused]] int argc, [[maybe_unused]] char* argv[] ) {
     spdlog::set_level( spdlog::level::debug );
     spdlog::debug( "hello world" );
     spdlog::info( "hello world" );
+    spdlog::warn("hello world");
 
     cv::Mat img = cv::imread( "resources/scene.jpg", cv::IMREAD_GRAYSCALE );
     cv::namedWindow( "img", cv::WINDOW_AUTOSIZE );
