@@ -10,7 +10,7 @@ on:
       - develop
 
 env:
-  CLANG_TIDY_VERSION: "19"
+  CLANG_TIDY_VERSION: "17"
   VERBOSE: 1
   UPLOAD_BIN_DIR: true
 
