@@ -155,22 +155,19 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           conan profile detect 
-          echo "tools.system.package_manager:mode=install
-          tools.system.package_manager:sudo=True
-          tools.build:skip_test=True" >> $(conan config home)/global.conf 
+          cp -rf ./.github/config_files/.conan2 $(conan config home)
           echo "[options]
           *:shared=True" >> $(conan config home)/profiles/default
+          cat $(conan config home)/global.conf
 
       - name: Windows Conifigure Conan
         if: runner.os == 'Windows'
         run: |
           conan profile detect
-          $conanHome = conan config home
-          Add-Content -Path "$conanHome\global.conf" -Value "tools.system.package_manager:mode=install"
-          Add-Content -Path "$conanHome\global.conf" -Value "tools.system.package_manager:sudo=True"
-          Add-Content -Path "$conanHome\global.conf" -Value "tools.build:skip_test=True"
-          Add-Content -Path "$conanHome\profiles\default" -Value "[options]"
-          Add-Content -Path "$conanHome\profiles\default" -Value "*:shared=True"
+          xcopy /E /I .\.github\config_files\.conan2 %USERPROFILE%\.conan2
+          echo [options] >> %USERPROFILE%\.conan2\profiles\default
+          echo *:shared=True >> %USERPROFILE%\.conan2\profiles\default
+          cat %USERPROFILE%\.conan2\global.conf
 
       - name: Configure CMake
         run: |
