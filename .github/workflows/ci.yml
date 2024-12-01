@@ -152,7 +152,7 @@ jobs:
           opencppcoverage: true
 
       - name: Conifigure Conan Profile
-        working-directory: $RUNNER_WORKSPACE/.conan2
+        working-directory: ${{~/.conan2}}
         run: |
           conan profile detect 
           echo "tools.system.package_manager:mode=install
