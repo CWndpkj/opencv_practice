@@ -169,9 +169,9 @@ jobs:
           conan profile detect
           Copy-Item -Recurse -Force .\.github\config_files\.conan2\* $env:USERPROFILE\.conan2
           echo "====================global.conf======================"
-          cat $env:USERPROFIL\.conan2\global.conf
+          cat $env:USERPROFILE\.conan2\global.conf
           echo "===================profile default==================="
-          cat $env:USERPROFIL\.conan2\profiles\default
+          cat $env:USERPROFILE\.conan2\profiles\default
 
       - name: Configure CMake
         run: |
