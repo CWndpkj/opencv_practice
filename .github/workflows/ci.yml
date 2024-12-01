@@ -10,7 +10,7 @@ on:
       - develop
 
 env:
-  CLANG_TIDY_VERSION: "18"
+  CLANG_TIDY_VERSION: "19"
   VERBOSE: 1
   UPLOAD_BIN_DIR: true
 
@@ -29,12 +29,12 @@ jobs:
       # and your own projects needs
       matrix:
         os:
-          - ubuntu-24.04
-          - windows-2022
+          - ubuntu-22.04
+          - windows-2019
         compiler:
           # you can specify the version after `-` like "llvm-15.0.2".
-          - llvm-18
-          - gcc-13
+          - llvm-17
+          - gcc-11
         generator:
           - "Ninja Multi-Config"
         build_type:
@@ -46,19 +46,19 @@ jobs:
         build_shared:
           - OFF
 
-        # exclude:
-        #   # mingw is determined by this author to be too buggy to support
-        #   - os: windows-2025
-        #     compiler: gcc-13
+        exclude:
+          # mingw is determined by this author to be too buggy to support
+          - os: windows-2019
+            compiler: gcc-11
 
         include:
           # Add appropriate variables for gcov version required. This will intentionally break
           # if you try to use a compiler that does not have gcov set
-          - compiler: gcc-13
+          - compiler: gcc-11
             gcov_executable: gcov
             enable_ipo: On
 
-          - compiler: llvm-18
+          - compiler: llvm-17
             enable_ipo: Off
             gcov_executable: "llvm-cov gcov"
 
@@ -68,7 +68,7 @@ jobs:
             package_generator: TBZ2
 
           # This exists solely to make sure a non-multiconfig build works
-          - os: ubuntu-24.04
+          - os: ubuntu-22.04
             compiler: gcc
             generator: "Unix Makefiles"
             build_type: Debug
@@ -77,36 +77,36 @@ jobs:
             enable_ipo: Off
 
           # Windows msvc builds
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Debug
             packaging_maintainer_mode: On
             enable_ipo: On
 
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Release
             packaging_maintainer_mode: On
             enable_ipo: On
 
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Debug
             packaging_maintainer_mode: Off
 
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Release
             packaging_maintainer_mode: Off
             package_generator: ZIP
 
-          - os: windows-2022
+          - os: windows-2019
             compiler: msvc
-            generator: "Visual Studio 17 2022"
+            generator: "Visual Studio 16 2019"
             build_type: Release
             packaging_maintainer_mode: On
             enable_ipo: On
@@ -158,15 +158,20 @@ jobs:
           cp -rf ./.github/config_files/.conan2/* $HOME/.conan2/
           echo "[options]
           *:shared=True" >> $HOME/.conan2/profiles/default
+          echo "====================global.conf======================"
           cat $HOME/.conan2/global.conf
+          echo "===================profile default==================="
+          echo $HOME/.conan2/profiles/default
 
       - name: Windows Conifigure Conan
         if: runner.os == 'Windows'
         run: |
           conan profile detect
           Copy-Item -Recurse -Force .\.github\config_files\.conan2\* $env:USERPROFILE\.conan2
-          echo [options] >> $env:USERPROFILE\.conan2\profiles\default
-          echo *:shared=True >> $env:USERPROFILE\.conan2\profiles\default
+          echo "====================global.conf======================"
+          cat $env:USERPROFIL\.conan2\global.conf
+          echo "===================profile default==================="
+          cat $env:USERPROFIL\.conan2\profiles\default
 
       - name: Configure CMake
         run: |
