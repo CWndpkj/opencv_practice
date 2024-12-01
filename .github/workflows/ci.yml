@@ -164,9 +164,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           conan profile detect
-          robocopy .\.github\config_files\.conan2 %USERPROFILE%\.conan2 /MIR
-          echo [options] >> %USERPROFILE%\.conan2\profiles\default
-          echo *:shared=True >> %USERPROFILE%\.conan2\profiles\default
+          robocopy .\.github\config_files\.conan2 $env:USERPROFILE\.conan2 /MIR
+          echo [options] >> $env:USERPROFILE\.conan2\profiles\default
+          echo *:shared=True >> $envUSERPROFILE\.conan2\profiles\default
 
       - name: Configure CMake
         run: |
