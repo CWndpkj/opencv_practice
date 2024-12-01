@@ -155,7 +155,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           conan profile detect 
-          cp -rf ./.github/config_files/.conan2 $HOME/.conan2
+          cp -r --remove-destination ./.github/config_files/.conan2 $HOME/.conan2
           echo "[options]
           *:shared=True" >> $HOME/.conan2/profiles/default
           cat $HOME/.conan2/global.conf
@@ -164,10 +164,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           conan profile detect
-          xcopy /E /I .\.github\config_files\.conan2 %USERPROFILE%\.conan2
+          robocopy .\.github\config_files\.conan2 %USERPROFILE%\.conan2 /MIR
           echo [options] >> %USERPROFILE%\.conan2\profiles\default
           echo *:shared=True >> %USERPROFILE%\.conan2\profiles\default
-          cat %USERPROFILE%\.conan2\global.conf
 
       - name: Configure CMake
         run: |
