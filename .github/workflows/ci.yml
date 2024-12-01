@@ -155,7 +155,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           conan profile detect 
-          cp -r --remove-destination ./.github/config_files/.conan2 $HOME/.conan2
+          cp -rf ./.github/config_files/.conan2/* $HOME/.conan2/
           echo "[options]
           *:shared=True" >> $HOME/.conan2/profiles/default
           cat $HOME/.conan2/global.conf
