@@ -141,6 +141,24 @@ function(myproject_package_project)
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${_PackageProject_NAME}" COMPONENT dev)
 
+  # Installation of dynamic libs
+  foreach(target ${_PackageProject_TARGETS})
+    install(
+      CODE "
+      set(CMAKE_INSTALL_MODE \"SYMLINK\")
+      file(GET_RUNTIME_DEPENDENCIES
+           RESOLVED_DEPENDENCIES_VAR _resolved_deps
+           UNRESOLVED_DEPENDENCIES_VAR _unresolved_deps
+           EXECUTABLES $<TARGET_FILE:${target}>
+           DIRECTORIES ${CMAKE_BINARY_DIR}/lib)
+      foreach(DEP_LIB \${_resolved_deps})
+        file(INSTALL \${DEP_LIB}
+             DESTINATION
+             \${CMAKE_INSTALL_PREFIX}/lib
+             FOLLOW_SYMLINK_CHAIN)
+        message(\"copying dependencies:\${DEP_LIB}\")
+      endforeach()")
+  endforeach()
   # install the usage file
   set(_targets_str "")
   foreach(_target ${_PackageProject_TARGETS})

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "cmake/conan_provider.cmake")
+set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "cmake/ConanProvider.cmake")
 # This template attempts to be "fetch_content"-able so that it works well with tools like CPM or
 # other manual dependency management
 
@@ -103,8 +103,8 @@ myproject_package_project(
   TARGETS
   json_parser
   opencv_practice
-  myproject_options
-  myproject_warnings
+  # myproject_options
+  # myproject_warnings
   # FIXME: this does not work! CK PRIVATE_DEPENDENCIES_CONFIGURED project_options project_warnings
 )
 
