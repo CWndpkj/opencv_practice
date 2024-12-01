@@ -151,10 +151,12 @@ jobs:
           gcovr: true
           opencppcoverage: true
 
-      - name: Conifigure Conan
+      - name: Conifigure Conan Profile
         run: conan profile detect &&
           echo "tools.system.package_manager:mode=install
-          tools.build:skip_test=True" >> $HOME/.conan2/global.conf &&
+          tools.system.package_manager:sudo=True
+          tools.build:skip_test=True
+          " >> $HOME/.conan2/global.conf &&
           echo "[options]
           *:shared=True" >> $HOME/.conan2/profiles/default
 
