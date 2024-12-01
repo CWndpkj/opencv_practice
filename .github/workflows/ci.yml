@@ -155,10 +155,10 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           conan profile detect 
-          cp -rf ./.github/config_files/.conan2 $(conan config home)
+          cp -rf ./.github/config_files/.conan2 $HOME/.conan2
           echo "[options]
-          *:shared=True" >> $(conan config home)/profiles/default
-          cat $(conan config home)/global.conf
+          *:shared=True" >> $HOME/.conan2/profiles/default
+          cat $HOME/.conan2/global.conf
 
       - name: Windows Conifigure Conan
         if: runner.os == 'Windows'
