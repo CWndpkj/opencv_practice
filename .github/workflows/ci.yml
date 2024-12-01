@@ -154,8 +154,8 @@ jobs:
       - name: Unix Conifigure Conan
         if: runner.os != 'Windows'
         run: |
-          cp -rf ./.github/config_files/.conan2/* $HOME/.conan2/
           conan profile detect 
+          cp -rf ./.github/config_files/.conan2/* $HOME/.conan2/
           echo "[options]
           *:shared=True" >> $HOME/.conan2/profiles/default
           cat $HOME/.conan2/global.conf
@@ -163,8 +163,8 @@ jobs:
       - name: Windows Conifigure Conan
         if: runner.os == 'Windows'
         run: |
-          robocopy .\.github\config_files\.conan2 $env:USERPROFILE\.conan2 /MIR
           conan profile detect
+          Copy-Item -Recurse -Force .\.github\config_files\.conan2\* $env:USERPROFILE\.conan2
           echo [options] >> $env:USERPROFILE\.conan2\profiles\default
           echo *:shared=True >> $env:USERPROFILE\.conan2\profiles\default
 
