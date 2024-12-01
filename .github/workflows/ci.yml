@@ -164,12 +164,13 @@ jobs:
       - name: Windows Conifigure Conan
         if: runner.os == 'Windows'
         run: |
-          conan profile detect 
-          echo "tools.system.package_manager:mode=install
-          tools.system.package_manager:sudo=True
-          tools.build:skip_test=True" | Out-File -FilePath $(conan config home)\global.conf -Append -Encoding ascii
-          echo "[options]
-          *:shared=True" | Out-File -FilePath $(conan config home)\profiles\default -Append -Encoding ascii
+          conan profile detect
+          $conanHome = conan config home
+          Add-Content -Path "$conanHome\global.conf" -Value "tools.system.package_manager:mode=install"
+          Add-Content -Path "$conanHome\global.conf" -Value "tools.system.package_manager:sudo=True"
+          Add-Content -Path "$conanHome\global.conf" -Value "tools.build:skip_test=True"
+          Add-Content -Path "$conanHome\profiles\default" -Value "[options]"
+          Add-Content -Path "$conanHome\profiles\default" -Value "*:shared=True"
 
       - name: Configure CMake
         run: |
