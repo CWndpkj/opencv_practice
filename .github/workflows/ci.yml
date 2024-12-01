@@ -167,9 +167,9 @@ jobs:
           conan profile detect 
           echo "tools.system.package_manager:mode=install
           tools.system.package_manager:sudo=True
-          tools.build:skip_test=True" | Out-File -FilePath $(conan config home)/global.conf -Append -Encoding ascii
+          tools.build:skip_test=True" | Out-File -FilePath $(conan config home)\global.conf -Append -Encoding ascii
           echo "[options]
-          *:shared=True" | Out-File -FilePath $(conan config home)/profiles/default -Append -Encoding ascii
+          *:shared=True" | Out-File -FilePath $(conan config home)\profiles\default -Append -Encoding ascii
 
       - name: Configure CMake
         run: |
