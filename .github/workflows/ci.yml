@@ -36,7 +36,7 @@ jobs:
           # - llvm-18
           - gcc-13
         generator:
-          - "Ninja Multi-Config"
+          - "Ninja"
         build_type:
           - Release
           - Debug
