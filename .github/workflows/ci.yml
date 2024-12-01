@@ -153,11 +153,10 @@ jobs:
 
       - name: Conifigure Conan Profile
         run: conan profile detect &&
-          echo "tools.system.package_manager:mode=install
-          tools.system.package_manager:sudo=True
-          tools.build:skip_test=True
-          " >> $HOME/.conan2/global.conf &&
-          echo "[options]
+          echo "tools.system.package_manager:mode=install\n
+          tools.system.package_manager:sudo=True\n
+          tools.build:skip_test=True" >> $HOME/.conan2/global.conf &&
+          echo "[options]\n
           *:shared=True" >> $HOME/.conan2/profiles/default
 
       - name: Configure CMake
