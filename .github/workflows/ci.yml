@@ -68,7 +68,7 @@ jobs:
             package_generator: TBZ2
 
           # This exists solely to make sure a non-multiconfig build works
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             compiler: gcc
             generator: "Unix Makefiles"
             build_type: Debug
