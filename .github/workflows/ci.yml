@@ -151,15 +151,14 @@ jobs:
           gcovr: true
           opencppcoverage: true
 
-      - name: Conifigure Conan Profile
-        working-directory: ${{~/.conan2}}
+      - name: Conifigure Conan
         run: |
           conan profile detect 
           echo "tools.system.package_manager:mode=install
           tools.system.package_manager:sudo=True
-          tools.build:skip_test=True" >> global.conf 
+          tools.build:skip_test=True" >> $(conan config home)/global.conf 
           echo "[options]
-          *:shared=True" >> profiles/default
+          *:shared=True" >> $(conan config home)/profiles/default
 
       - name: Configure CMake
         run: |
