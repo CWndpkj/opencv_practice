@@ -144,13 +144,16 @@ function(myproject_package_project)
   # Installation of dynamic libs
   foreach(target ${_PackageProject_TARGETS})
     install(
-      CODE "
-      set(CMAKE_INSTALL_MODE \"SYMLINK\")
+      CODE "set(CMAKE_INSTALL_MODE \"SYMLINK\")
       file(GET_RUNTIME_DEPENDENCIES
            RESOLVED_DEPENDENCIES_VAR _resolved_deps
            UNRESOLVED_DEPENDENCIES_VAR _unresolved_deps
            EXECUTABLES $<TARGET_FILE:${target}>
-           DIRECTORIES ${CMAKE_BINARY_DIR}/lib)
+           DIRECTORIES ${CMAKE_BINARY_DIR}/lib
+           PRE_EXCLUDE_REGEXES
+           [[libc\.so\..*]] [[libgcc_s\.so\..*]] [[libm\.so\..*]] [[libstdc\+\+\.so\..*]]
+           [[ld.*]] [[libbz2.*]] [[libdl.*]] [[libgmp.*]] [[libgnutls.*]] [[libhogweed.*]]
+           [[libpthread.*]] [[librt.*]] [[libz.*]])
       foreach(DEP_LIB \${_resolved_deps})
         file(INSTALL \${DEP_LIB}
              DESTINATION

@@ -22,3 +22,6 @@ class ConanApplication(ConanFile):
         requirements = self.conan_data.get("requirements", [])
         for requirement in requirements:
             self.requires(requirement)
+
+    def configure(self):
+        self.options["*"].shared = True

@@ -3,7 +3,9 @@ build/
 out/
 out/coverage/*
 cmake-build-*/
-conan-cache/
+
+# Node
+node_modules/
 
 # User spesific settings
 CMakeUserPresets.json

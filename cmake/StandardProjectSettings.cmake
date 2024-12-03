@@ -22,6 +22,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+# Do not add run time path information, as we use conan to manage dependencies,
+# set run path break install dependencies lookup(Error with multiple identical dependencies found)
+# WARN: This causes the build process to fail if we don't source conan's run
+#       environment file(conanrun.sh or conanrun.bat), as the dependencies won't be found.
+set(CMAKE_SKIP_RPATH TRUE)
+
 # Enhance error reporting and compiler messages
 if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
   if(WIN32)
