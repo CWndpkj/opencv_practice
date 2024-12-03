@@ -3,21 +3,25 @@
 /// 1. install build essentials and package manager(we use conan here)
 /// 2. configure conan's profile and global configuration
 
-import { $ } from 'zx'
-$.prefix = "set -eo pipefail;"
+import 'zx/globals'
+import { quotePowerShell } from 'zx'
+
+if (process.platform === 'win32') {
+  $.quote = quotePowerShell
+}
 
 class ConfigModifier {
   setupConan = async function () {
-    await $`conan profile new default --detect`
+    await $`conan profile detect --force 1>&2`
     if (process.platform === 'win32') {
-      await $`Copy-Item -Recurse -Force .\.github\config_files\.conan2\* $env:USERPROFILE\.conan2`
+      await $`Copy-Item -Recurse -Force ..\.github\config_files\.conan2\* $env:USERPROFILE\.conan2`
       console.log("=========conan global config=========")
-      await $`cat $env:USERPROFILE/.conan2/global.conf`
+      await $`cat $env:USERPROFILE/.conan2/global.conf 1>&2`
     }
     else {
-      await $`cp -rf ./.github/config_files/.conan2/* ~/.conan2`
+      await $`cp -rf ../.github/config_files/.conan2/* ~/.conan2`
       console.log("=========conan global config=========")
-      await $`cat ~/.conan2/global.conf`
+      await $`cat ~/.conan2/global.conf 1>&2`
     }
   }
 }
@@ -34,6 +38,12 @@ class PackageManager {
         break
       case 'apt':
         await this._aptInstallPackage(packageList)
+        break
+      case 'pacman':
+        await this._pacmanInstallPackage(packageList)
+        break
+      case 'yum':
+        await this._yumInstallPackage(packageList)
         break
       case 'brew':
         await this._brewInstallPackage(packageList)
@@ -99,6 +109,7 @@ class PackageManager {
 async function main() {
   const packageManager = new PackageManager()
   await packageManager.detectSystemPackageManager()
+  console.log(`Detected package manager: ${packageManager.packageManager}`)
   switch (packageManager.packageManager) {
     case 'apt':
       packageManager.installPackage(['build-essential', 'cmake', 'conan'])
