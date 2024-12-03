@@ -31,27 +31,35 @@ class PackageManager {
   constructor() {
     this.packageManager = ''
   }
-  installPackage = async function (packageList: string[]) {
+  installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(packageList)
+        await this._chocoInstallPackage(['vcredist140', 'cmake', 'conan'])
         break
       case 'apt':
-        await this._aptInstallPackage(packageList)
+        await this._aptInstallPackage(['build-essential', 'cmake'])
         break
       case 'pacman':
-        await this._pacmanInstallPackage(packageList)
+        await this._pacmanInstallPackage(['base-devel', 'cmake'])
         break
       case 'yum':
-        await this._yumInstallPackage(packageList)
+        await this._yumInstallPackage(['gcc-c++', 'cmake'])
         break
       case 'brew':
-        await this._brewInstallPackage(packageList)
+        await this._brewInstallPackage(['gcc', 'g++', 'cmake'])
         break
-      case 'pip':
-        await this._pipInstallPackage(packageList)
-        break
+      default:
+        console.error("Unknown package manager")
+        process.exit(1)
     }
+  }
+
+  installConfigPy = async function () {
+    await $`curl https://pyenv.run | bash &&echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc &&echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc&&echo 'eval "$(pyenv init -)"' >> ~/.bashrc && source ~/.bashrc &&pyenv install 3 && pyenv global 3 &&curl -s https://bootstrap.pypa.io/get-pip.py | python`
+  }
+
+  installConan = async function () {
+    await this._pipInstallPackage('conan')
   }
 
   detectSystemPackageManager = async function () {
@@ -61,17 +69,19 @@ class PackageManager {
       try {
         await $`command -v apt-get`
         this.packageManager = "apt"
-      } catch { }
-      try {
-        await $`command -v yum`
-        this.packageManager = "yum"
-      } catch { }
-      try {
-        await $`command -v pacman`
-        this.packageManager = "pacman"
       } catch {
-        console.error("Unknown package manager")
-        process.exit(1)
+        try {
+          await $`command -v yum`
+          this.packageManager = "yum"
+        } catch {
+          try {
+            await $`command -v pacman`
+            this.packageManager = "pacman"
+          } catch {
+            console.error("Unknown package manager")
+            process.exit(1)
+          }
+        }
       }
     } else if (process.platform === 'darwin') {
       this.packageManager = "brew"
@@ -82,26 +92,26 @@ class PackageManager {
   }
 
   _chocoInstallPackage = async function (packageList: string[]) {
-    await $`choco install -y ${packageList.concat(' ')}`
+    await $`choco install -y ${packageList.concat(' ')} 1>&2`
   }
   _aptInstallPackage = async function (packageList: string[]) {
     await $`sudo apt-get update`
-    await $`sudo apt-get -y install ${packageList.concat(' ')}`
+    await $`sudo apt-get -y install ${packageList.concat(' ')} 1>&2`
   }
   _pacmanInstallPackage = async function (packageList: string[]) {
     await $`sudo pacman -Syu`
-    await $`sudo pacman -S ${packageList.concat(' ')}`
+    await $`sudo pacman -S ${packageList.concat(' ')} 1>&2`
   }
   _yumInstallPackage = async function (packageList: string[]) {
     await $`sudo yum update`
-    await $`sudo yum install -y ${packageList.concat(' ')}`
+    await $`sudo yum install -y ${packageList.concat(' ')} 1>&2`
   }
   _brewInstallPackage = async function (packageList: string[]) {
     await $`brew update`
-    await $`brew install ${packageList.concat(' ')}`
+    await $`brew install ${packageList.concat(' ')} 1>&2`
   }
   _pipInstallPackage = async function (packageList: string[]) {
-    await $`pip install -g ${packageList.concat(' ')}`
+    await $`pip install -g ${packageList.concat(' ')} 1>&2`
   }
 }
 
@@ -110,26 +120,9 @@ async function main() {
   const packageManager = new PackageManager()
   await packageManager.detectSystemPackageManager()
   console.log(`Detected package manager: ${packageManager.packageManager}`)
-  switch (packageManager.packageManager) {
-    case 'apt':
-      packageManager.installPackage(['build-essential', 'cmake', 'conan'])
-      break
-    case 'yum':
-      packageManager.installPackage(['gcc-c++', 'cmake', 'conan'])
-      break
-    case 'pacman':
-      packageManager.installPackage(['base-devel', 'cmake', 'conan'])
-      break
-    case 'brew':
-      packageManager.installPackage(['cmake', 'conan'])
-      break
-    case 'choco':
-      packageManager.installPackage(['vcredist140', 'cmake', 'conan'])
-      break
-    default:
-      console.error("Install failed")
-      break
-  }
+  packageManager.installToolchain()
+  packageManager.installConfigPy()
+  packageManager.installConan()
 
   const configModifier = new ConfigModifier()
   configModifier.setupConan()
