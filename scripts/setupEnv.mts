@@ -37,7 +37,8 @@ class PackageManager {
         await this._chocoInstallPackage(['vcredist140', 'cmake', 'conan'])
         break
       case 'apt':
-        await this._aptInstallPackage(['build-essential', 'cmake'])
+        await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
+          'liblzma-dev', 'libncurses-dev', 'tk-dev'])
         break
       case 'pacman':
         await this._pacmanInstallPackage(['base-devel', 'cmake'])
@@ -55,7 +56,16 @@ class PackageManager {
   }
 
   installConfigPy = async function () {
-    await $`curl https://pyenv.run | bash &&echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc &&echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc&&echo 'eval "$(pyenv init -)"' >> ~/.bashrc && source ~/.bashrc &&pyenv install 3 && pyenv global 3 &&curl -s https://bootstrap.pypa.io/get-pip.py | python`
+    await $`curl https://pyenv.run | bash &&
+            echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && 
+            echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && 
+            echo 'eval "$(pyenv init -)"' >> ~/.bashrc && 
+            export PYENV_ROOT="$HOME/.pyenv"&& 
+            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"&& 
+            eval "$(pyenv init -)"&& 
+            pyenv install -s 3 && 
+            pyenv global 3 &&
+            curl -s https://bootstrap.pypa.io/get-pip.py | python`
   }
 
   installConan = async function () {
@@ -120,11 +130,10 @@ class PackageManager {
   }
   _pipInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`pip install -g ${pkg} 1>&2`
+      await $`pip install ${pkg} 1>&2`
     }
   }
 }
-
 
 async function main() {
   const packageManager = new PackageManager()
