@@ -92,26 +92,36 @@ class PackageManager {
   }
 
   _chocoInstallPackage = async function (packageList: string[]) {
-    await $`choco install -y ${packageList.concat(' ')} 1>&2`
+    await $`choco install -y ${packageList.join(' ')} 1>&2`
   }
   _aptInstallPackage = async function (packageList: string[]) {
-    await $`sudo apt-get update`
-    await $`sudo apt-get -y install ${packageList.concat(' ')} 1>&2`
+    await $`sudo apt-get update 1>&2`
+    for (const pkg of packageList) {
+      await $`sudo apt-get -y install ${pkg} 1>&2`
+    }
   }
   _pacmanInstallPackage = async function (packageList: string[]) {
-    await $`sudo pacman -Syu`
-    await $`sudo pacman -S ${packageList.concat(' ')} 1>&2`
+    await $`sudo pacman -Syu 1>&2`
+    for (const pkg of packageList) {
+      await $`sudo pacman -S ${pkg} 1>&2`
+    }
   }
   _yumInstallPackage = async function (packageList: string[]) {
-    await $`sudo yum update`
-    await $`sudo yum install -y ${packageList.concat(' ')} 1>&2`
+    await $`sudo yum update 1>&2`
+    for (const pkg of packageList) {
+      await $`sudo yum install -y ${pkg} 1>&2`
+    }
   }
   _brewInstallPackage = async function (packageList: string[]) {
-    await $`brew update`
-    await $`brew install ${packageList.concat(' ')} 1>&2`
+    await $`brew update 1>&2`
+    for (const pkg of packageList) {
+      await $`brew install ${pkg} 1>&2`
+    }
   }
   _pipInstallPackage = async function (packageList: string[]) {
-    await $`pip install -g ${packageList.concat(' ')} 1>&2`
+    for (const pkg of packageList) {
+      await $`pip install -g ${pkg} 1>&2`
+    }
   }
 }
 
@@ -120,12 +130,12 @@ async function main() {
   const packageManager = new PackageManager()
   await packageManager.detectSystemPackageManager()
   console.log(`Detected package manager: ${packageManager.packageManager}`)
-  packageManager.installToolchain()
-  packageManager.installConfigPy()
-  packageManager.installConan()
+  await packageManager.installToolchain()
+  await packageManager.installConfigPy()
+  await packageManager.installConan()
 
   const configModifier = new ConfigModifier()
-  configModifier.setupConan()
+  await configModifier.setupConan()
 }
 
 main()
