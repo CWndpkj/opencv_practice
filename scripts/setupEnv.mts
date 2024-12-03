@@ -13,6 +13,7 @@ const __dirname = dirname(__filename);
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
+  $.shell = 'powershell'
 }
 
 if (process.platform != 'win32') {
@@ -21,13 +22,15 @@ if (process.platform != 'win32') {
 
 class ConfigModifier {
   setupConan = async function () {
-    await $`conan profile detect --force 1>&2`
     if (process.platform === 'win32') {
+      await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") ;
+          conan profile detect --force 2>&1`
       await $`Copy-Item -Recurse -Force ${__dirname}/../.github/config_files/.conan2/* $env:USERPROFILE/.conan2`
       console.log("=========conan global config=========")
-      await $`cat $env:USERPROFILE/.conan2/global.conf 1>&2`
+      await $`type $env:USERPROFILE/.conan2/global.conf 1>&2`
     }
     else {
+      await $`conan profile detect --force 1>&2`
       await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`
       console.log("=========conan global config=========")
       await $`cat ~/.conan2/global.conf 1>&2`
@@ -43,7 +46,7 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(['vcredist140', 'cmake'])
+        await this._chocoInstallPackage(['visualstudio2022buildtools', 'cmake'])
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
@@ -122,7 +125,7 @@ class PackageManager {
 
   _chocoInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`choco install -y ${pkg} 1>&2`
+      await $`choco install -y ${pkg} 2>&1`
     }
   }
   _aptInstallPackage = async function (packageList: string[]) {
