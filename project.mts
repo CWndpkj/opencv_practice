@@ -4,7 +4,9 @@ import 'zx/globals'
 
 // default is "set -euo pipefail;",
 // `-u`: Treat unset variables as an error and exit immediately.
-$.prefix = "set -eo pipefail;"
+if (process.platform != 'win32') {
+  $.prefix = "set -eo pipefail;"
+}
 
 function parseJson(json: PathOrFileDescriptor) {
   try {

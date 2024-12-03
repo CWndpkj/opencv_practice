@@ -5,21 +5,32 @@
 
 import 'zx/globals'
 import { quotePowerShell } from 'zx'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// 获取当前脚本的路径
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+console.log(`__dirname: ${__dirname}`)
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
+}
+
+if (process.platform != 'win32') {
+  $.prefix = "set -eo pipefail;"
 }
 
 class ConfigModifier {
   setupConan = async function () {
     await $`conan profile detect --force 1>&2`
     if (process.platform === 'win32') {
-      await $`Copy-Item -Recurse -Force ..\.github\config_files\.conan2\* $env:USERPROFILE\.conan2`
+      await $`Copy-Item -Recurse -Force ${__dirname}/../.github/config_files/.conan2/* $env:USERPROFILE/.conan2`
       console.log("=========conan global config=========")
       await $`cat $env:USERPROFILE/.conan2/global.conf 1>&2`
     }
     else {
-      await $`cp -rf ../.github/config_files/.conan2/* ~/.conan2`
+      await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`
       console.log("=========conan global config=========")
       await $`cat ~/.conan2/global.conf 1>&2`
     }
@@ -34,7 +45,7 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(['vcredist140', 'cmake', 'conan'])
+        await this._chocoInstallPackage(['vcredist140', 'cmake'])
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
@@ -56,20 +67,30 @@ class PackageManager {
   }
 
   installConfigPy = async function () {
-    await $`curl https://pyenv.run | bash &&
-            echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && 
+    if (process.platform === 'win32')
+      await this._chocoInstallPackage(['python'])
+    else {
+      const home = process.env.HOME
+      if (fs.existsSync(`${home}/.pyenv`)) {
+        console.log("pyenv already installed")
+        return
+      }
+      await $`curl https://pyenv.run | bash`
+      await $`echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && 
             echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && 
-            echo 'eval "$(pyenv init -)"' >> ~/.bashrc && 
-            export PYENV_ROOT="$HOME/.pyenv"&& 
-            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"&& 
-            eval "$(pyenv init -)"&& 
+            echo 'eval "$(pyenv init -)"' >> ~/.bashrc`
+      await $`source ~/.bashrc &&
             pyenv install -s 3 && 
             pyenv global 3 &&
             curl -s https://bootstrap.pypa.io/get-pip.py | python`
+    }
   }
 
   installConan = async function () {
-    await this._pipInstallPackage('conan')
+    if (process.platform === 'win32')
+      await this._chocoInstallPackage(['conan'])
+    else
+      await this._pipInstallPackage(['conan'])
   }
 
   detectSystemPackageManager = async function () {
@@ -111,7 +132,7 @@ class PackageManager {
     }
   }
   _pacmanInstallPackage = async function (packageList: string[]) {
-    await $`sudo pacman -Syu 1>&2`
+    await $`sudo pacman -Syyu 1>&2`
     for (const pkg of packageList) {
       await $`sudo pacman -S ${pkg} 1>&2`
     }
@@ -130,7 +151,7 @@ class PackageManager {
   }
   _pipInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`pip install ${pkg} 1>&2`
+      await $`source ~/.bashrc && pip install ${pkg} 1>&2`
     }
   }
 }
