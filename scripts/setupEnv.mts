@@ -8,10 +8,8 @@ import { quotePowerShell } from 'zx'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// 获取当前脚本的路径
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-console.log(`__dirname: ${__dirname}`)
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
@@ -123,7 +121,9 @@ class PackageManager {
   }
 
   _chocoInstallPackage = async function (packageList: string[]) {
-    await $`choco install -y ${packageList.join(' ')} 1>&2`
+    for (const pkg of packageList) {
+      await $`choco install -y ${pkg} 1>&2`
+    }
   }
   _aptInstallPackage = async function (packageList: string[]) {
     await $`sudo apt-get update 1>&2`
