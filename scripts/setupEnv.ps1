@@ -13,10 +13,8 @@ $Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 # Install tsx globally using npm
 npm install -g tsx
 
-# Install zx using npm
-npm install zx
+npm install ..
 
 # Install setup-cli globally using npm
-npm install -g setup-cpp
 
 tsx setupEnv.mts

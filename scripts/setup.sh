@@ -7,7 +7,7 @@
 npm_install_packages() {
 	echo "Installing npm packages..."
 	npm install -g tsx
-	npm install zx
+	npm install ..
 }
 
 # Function to install Node.js and npm using apt (Debian/Ubuntu)
