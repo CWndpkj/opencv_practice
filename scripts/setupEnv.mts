@@ -23,17 +23,17 @@ if (process.platform != 'win32') {
 class ConfigModifier {
   setupConan = async function () {
     if (process.platform === 'win32') {
-      await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") ;
+      await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::EnvironmentVariable("Path","User") ;
             conan profile detect --force`.pipe(process.stderr)
-      await $`Copy-Item -Recurse -Force -Path "${__dirname}/../.github/config_files/.conan2/*" -Destination "$env:USERPROFILE/.conan2"`
+      fs.copySync(`${__dirname}/../.github/config_files/.conan2`, `${process.env.USERPROFILE}/.conan2`)
       console.log("=========conan global config=========")
-      await $`type $env:USERPROFILE/.conan2/global.conf 1>&2`
+      await $`type $env:USERPROFILE/.conan2/global.conf`.pipe(process.stderr)
     }
     else {
-      await $`conan profile detect --force 1>&2`
+      await $`conan profile detect --force`.pipe(process.stderr)
       await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`
       console.log("=========conan global config=========")
-      await $`cat ~/.conan2/global.conf 1>&2`
+      await $`cat ~/.conan2/global.conf`.pipe(process.stderr)
     }
   }
 }
@@ -76,14 +76,14 @@ class PackageManager {
         console.log("pyenv already installed")
         return
       }
-      await $`curl https://pyenv.run | bash`
+      await $`curl https://pyenv.run | bash`.pipe(process.stderr)
       await $`echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && 
             echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && 
-            echo 'eval "$(pyenv init -)"' >> ~/.bashrc`
+            echo 'eval "$(pyenv init -)"' >> ~/.bashrc`.pipe(process.stderr)
       await $`source ~/.bashrc &&
             pyenv install -s 3 && 
             pyenv global 3 &&
-            curl -s https://bootstrap.pypa.io/get-pip.py | python`
+            curl -s https://bootstrap.pypa.io/get-pip.py | python`.pipe(process.stderr)
     }
   }
 
@@ -129,32 +129,32 @@ class PackageManager {
     }
   }
   _aptInstallPackage = async function (packageList: string[]) {
-    await $`sudo apt-get update 1>&2`
+    await $`sudo apt-get update`.pipe(process.stderr)
     for (const pkg of packageList) {
-      await $`sudo apt-get -y install ${pkg} 1>&2`
+      await $`sudo apt-get -y install ${pkg}`.pipe(process.stderr)
     }
   }
   _pacmanInstallPackage = async function (packageList: string[]) {
-    await $`sudo pacman -Syyu 1>&2`
+    await $`sudo pacman -Syyu`.pipe(process.stderr)
     for (const pkg of packageList) {
-      await $`sudo pacman -S ${pkg} 1>&2`
+      await $`sudo pacman -S ${pkg}`.pipe(process.stderr)
     }
   }
   _yumInstallPackage = async function (packageList: string[]) {
-    await $`sudo yum update 1>&2`
+    await $`sudo yum update`.pipe(process.stderr)
     for (const pkg of packageList) {
-      await $`sudo yum install -y ${pkg} 1>&2`
+      await $`sudo yum install -y ${pkg}`.pipe(process.stderr)
     }
   }
   _brewInstallPackage = async function (packageList: string[]) {
-    await $`brew update 1>&2`
+    await $`brew update`.pipe(process.stderr)
     for (const pkg of packageList) {
-      await $`brew install ${pkg} 1>&2`
+      await $`brew install ${pkg}`.pipe(process.stderr)
     }
   }
   _pipInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`source ~/.bashrc && pip install ${pkg} 1>&2`
+      await $`source ~/.bashrc && pip install ${pkg}`.pipe(process.stderr)
     }
   }
 }

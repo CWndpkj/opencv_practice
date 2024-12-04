@@ -166,35 +166,6 @@ function(myproject_package_project)
     [[^/usr/lib.*]]
     DIRECTORIES
     ${CONAN_RUNTIME_LIB_DIRS})
-  # Installation of dynamic libs
-  # foreach(target ${_PackageProject_TARGETS})
-  #   install(
-  #     CODE "set(CMAKE_INSTALL_MODE \"SYMLINK\")
-  #     file(GET_RUNTIME_DEPENDENCIES
-  #          RESOLVED_DEPENDENCIES_VAR _resolved_deps
-  #          UNRESOLVED_DEPENDENCIES_VAR _unresolved_deps
-  #          EXECUTABLES $<TARGET_FILE:${target}>
-  #          DIRECTORIES ${CMAKE_BINARY_DIR}/lib
-  #          PRE_EXCLUDE_REGEXES
-  #            [[libc\.so\..*]] [[libgcc_s\.so\..*]] [[libm\.so\..*]] [[libstdc\+\+\.so\..*]]
-  #            [[ld.*]] [[libbz2.*]] [[libdl.*]] [[libgmp.*]] [[libgnutls.*]] [[libhogweed.*]]
-  #            [[libpthread.*]] [[librt.*]] [[libz.*]]
-  #            [[api-ms-win-.*]]
-  #            [[ext-ms-.*]]
-  #            [[kernel32\.dll]]
-  #          POST_EXCLUDE_REGEXES
-  #            [[.*/system32/.*\.dll]]
-  #            [[^/lib.*]]
-  #            [[^/usr/lib.*]])
-  #     foreach(DEP_LIB \${_resolved_deps})
-  #       file(INSTALL \${DEP_LIB}
-  #            DESTINATION
-  #            \${CMAKE_INSTALL_PREFIX}/lib
-  #            FOLLOW_SYMLINK_CHAIN)
-  #       message(\"copying dependencies:\${DEP_LIB}\")
-  #     endforeach()")
-  # endforeach()
-  # install the usage file
   set(_targets_str "")
   foreach(_target ${_PackageProject_TARGETS})
     set(_targets_str "${_targets_str} ${_PackageProject_NAMESPACE}${_target}")

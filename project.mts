@@ -146,28 +146,28 @@ class Excutor {
 
   clean = async function () {
     if (fs.existsSync(this.projectConfigs.configureConfig.binaryDir)) {
-      await $`rm -rf ${this.projectConfigs.configureConfig.binaryDir} 1>&2`
+      await $`rm -rf ${this.projectConfigs.configureConfig.binaryDir}`.pipe(process.stderr)
     }
   }
 
   cmakeConfigure = async function () {
-    await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset} 1>&2`
+    await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
 
   cmakeBuild = async function () {
-    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh 1>&2 && cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} 1>&2`
+    await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `
   }
 
   runTarget = async function () {
-    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh 1>&2 && ${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args} 1>&2`
+    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
   }
 
   runTest = async function () {
-    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh 1>&2 && ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs} 1>&2`
+    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}`.pipe(process.stderr)
   }
 
   cpack = async function () {
-    await $`cd ${this.projectConfigs.configureConfig.binaryDir} && cpack 1>&2`
+    await $`cd ${this.projectConfigs.configureConfig.binaryDir} && cpack`.pipe(process.stderr)
   }
 }
 
