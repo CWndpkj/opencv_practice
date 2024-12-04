@@ -2,6 +2,11 @@ import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import 'zx/globals'
 
+if (process.platform === 'win32') {
+  $.quote = quotePowerShell
+  $.shell = 'powershell'
+}
+
 // default is "set -euo pipefail;",
 // `-u`: Treat unset variables as an error and exit immediately.
 if (process.platform != 'win32') {
@@ -146,7 +151,7 @@ class Excutor {
 
   clean = async function () {
     if (fs.existsSync(this.projectConfigs.configureConfig.binaryDir)) {
-      await $`rm -rf ${this.projectConfigs.configureConfig.binaryDir}`.pipe(process.stderr)
+      await fs.remove(this.projectConfigs.configureConfig.binaryDir)
     }
   }
 
@@ -159,7 +164,11 @@ class Excutor {
   }
 
   runTarget = async function () {
-    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
+    if (process.platform === 'win32') {
+      await $`cmd /c ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.bat;${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
+    } else {
+      await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
+    }
   }
 
   runTest = async function () {

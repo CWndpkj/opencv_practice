@@ -23,7 +23,7 @@ if (process.platform != 'win32') {
 class ConfigModifier {
   setupConan = async function () {
     if (process.platform === 'win32') {
-      await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::EnvironmentVariable("Path","User") ;
+      await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") ;
             conan profile detect --force`.pipe(process.stderr)
       fs.copySync(`${__dirname}/../.github/config_files/.conan2`, `${process.env.USERPROFILE}/.conan2`)
       console.log("=========conan global config=========")
@@ -46,7 +46,8 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(['visualstudio2022buildtools', 'cmake'])
+        // FIXME: chocolatey didn't install the MSVC compiler
+        await this._chocoInstallPackage(['visualstudio2022buildtools', 'ninja', 'cmake'])
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
