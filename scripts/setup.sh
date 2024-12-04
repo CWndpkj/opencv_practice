@@ -18,8 +18,6 @@ install_node_npm() {
 	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 	nvm install --lts
-	# This fixex the issue of npm not being found when using sudo
-	sudo ln -s "$NVM_DIR/versions/node/$(nvm version)/bin/npm" "/usr/local/bin/npm"
 	npm_install_packages
 }
 
@@ -29,4 +27,5 @@ npm_install_packages
 echo "zx installation completed."
 
 echo "installing build environment..."
+source ~/.bashrc
 tsx setupEnv.mts

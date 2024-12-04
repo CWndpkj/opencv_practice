@@ -43,7 +43,7 @@ class setupCpp {
   async run() {
     // WARN: Need to source ~/.cpprc # activate cpp environment variables
     if (process.platform === 'win32') {
-      await $`sudo npx setup-cpp --compiler msvc vcvarsall --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
+      await $`npx setup-cpp --compiler msvc-2022 --vcvarsall true --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
     }
     else if (process.platform === 'linux') {
       await $`sudo npx setup-cpp --compiler gcc --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
