@@ -508,7 +508,7 @@ function(conan_install)
   endif()
 
   execute_process(
-    COMMAND ${CONAN_COMMAND} install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN} --deployer=lib_deploy --deployer-folder=${CMAKE_BINARY_DIR}/lib --format=json
+    COMMAND ${CONAN_COMMAND} install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN} --format=json
     RESULT_VARIABLE return_code
     OUTPUT_VARIABLE conan_stdout
     ERROR_VARIABLE conan_stderr ECHO_ERROR_VARIABLE # show the text output regardless

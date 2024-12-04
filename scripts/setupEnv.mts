@@ -25,7 +25,7 @@ class ConfigModifier {
     if (process.platform === 'win32') {
       await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") ;
             conan profile detect --force`.pipe(process.stderr)
-      await $`Copy-Item -Recurse -Force -Path ${__dirname}/../.github/config_files/.conan2/* -Destination $env:USERPROFILE/.conan2`
+      await $`Copy-Item -Recurse -Force -Path "${__dirname}/../.github/config_files/.conan2/*" -Destination "$env:USERPROFILE/.conan2"`
       console.log("=========conan global config=========")
       await $`type $env:USERPROFILE/.conan2/global.conf 1>&2`
     }
