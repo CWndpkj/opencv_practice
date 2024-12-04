@@ -30,7 +30,7 @@ class ConfigModifier {
       await $`type $env:USERPROFILE/.conan2/global.conf`.pipe(process.stderr)
     }
     else {
-      await $`conan profile detect --force`.pipe(process.stderr)
+      await $`source ~/.cpprc && conan profile detect --force`.pipe(process.stderr)
       await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`.pipe(process.stderr)
       console.log("=========conan global config=========")
       await $`cat ~/.conan2/global.conf`.pipe(process.stderr)
@@ -181,11 +181,12 @@ async function main() {
   // await packageManager.installConfigPy()
   // await packageManager.installConan()
   //
-  // const configModifier = new ConfigModifier()
-  // await configModifier.modConan()
 
   const setup = new setupCpp()
   await setup.run()
+
+  const configModifier = new ConfigModifier()
+  await configModifier.modConan()
 }
 
 main()
