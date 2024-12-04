@@ -21,7 +21,7 @@ if (process.platform != 'win32') {
 }
 
 class ConfigModifier {
-  setupConan = async function () {
+  modConan = async function () {
     if (process.platform === 'win32') {
       await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") ;
             conan profile detect --force`.pipe(process.stderr)
@@ -31,9 +31,22 @@ class ConfigModifier {
     }
     else {
       await $`conan profile detect --force`.pipe(process.stderr)
-      await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`
+      await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`.pipe(process.stderr)
       console.log("=========conan global config=========")
       await $`cat ~/.conan2/global.conf`.pipe(process.stderr)
+    }
+  }
+}
+
+
+class setupCpp {
+  async run() {
+    // WARN: Need to source ~/.cpprc # activate cpp environment variables
+    if (process.platform === 'win32') {
+      await $`sudo npx setup-cpp --compiler msvc vcvarsall --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
+    }
+    else if (process.platform === 'linux') {
+      await $`sudo npx setup-cpp --compiler gcc --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
     }
   }
 }
@@ -161,15 +174,18 @@ class PackageManager {
 }
 
 async function main() {
-  const packageManager = new PackageManager()
-  await packageManager.detectSystemPackageManager()
-  console.log(`Detected package manager: ${packageManager.packageManager}`)
-  await packageManager.installToolchain()
-  await packageManager.installConfigPy()
-  await packageManager.installConan()
+  // const packageManager = new PackageManager()
+  // await packageManager.detectSystemPackageManager()
+  // console.log(`Detected package manager: ${packageManager.packageManager}`)
+  // await packageManager.installToolchain()
+  // await packageManager.installConfigPy()
+  // await packageManager.installConan()
+  //
+  // const configModifier = new ConfigModifier()
+  // await configModifier.modConan()
 
-  const configModifier = new ConfigModifier()
-  await configModifier.setupConan()
+  const setup = new setupCpp()
+  await setup.run()
 }
 
 main()

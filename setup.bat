@@ -19,3 +19,6 @@ call npm install -g tsx
 
 :: Install zx using npm
 call npm install zx
+
+:: Install setup-cli globally using npm
+call npm install -g setup-cpp

@@ -5,20 +5,22 @@
 # 2. Install zx and tsx using npm
 
 npm_install_packages() {
-  echo "Installing npm packages..."
-  npm install -g tsx
-  npm install zx
+	echo "Installing npm packages..."
+	npm install -g tsx
+	npm install zx
 }
 
 # Function to install Node.js and npm using apt (Debian/Ubuntu)
 install_node_npm() {
-  echo "Installing Node.js and npm..."
-  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.9/install.sh | bash
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-  nvm install --lts
-  npm_install_packages
+	echo "Installing Node.js and npm..."
+	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.9/install.sh | bash
+	export NVM_DIR="$HOME/.nvm"
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+	nvm install --lts
+	# This fixex the issue of npm not being found when using sudo
+	sudo ln -s "$NVM_DIR/versions/node/$(nvm version)/bin/npm" "/usr/local/bin/npm"
+	npm_install_packages
 }
 
 install_node_npm
