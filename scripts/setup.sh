@@ -27,3 +27,6 @@ install_node_npm
 npm_install_packages
 
 echo "zx installation completed."
+
+echo "installing build environment..."
+tsx setupEnv.mts
