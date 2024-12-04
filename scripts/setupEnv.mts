@@ -7,7 +7,6 @@ import 'zx/globals'
 import { quotePowerShell } from 'zx'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { setupMSVCDevCmd } from "msvc-dev-cmd/lib.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -62,7 +61,6 @@ class PackageManager {
       case 'choco':
         // FIXME: chocolatey didn't install the MSVC compiler
         await this._chocoInstallPackage(['visualstudio2022buildtools', 'ninja', 'cmake'])
-        await setupMSVCDevCmd('x64', undefined, undefined, false, false, '2022')
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',

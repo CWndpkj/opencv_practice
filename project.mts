@@ -1,6 +1,7 @@
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import 'zx/globals'
+import { setupMSVCDevCmd } from "msvc-dev-cmd/lib.js"
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
@@ -156,11 +157,14 @@ class Excutor {
   }
 
   cmakeConfigure = async function () {
+    if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
+      await setupMSVCDevCmd('x64', undefined, undefined, false, false, '2022')
+    }
     await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
 
   cmakeBuild = async function () {
-    await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `
+    await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
   }
 
   runTarget = async function () {
