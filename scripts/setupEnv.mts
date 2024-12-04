@@ -61,6 +61,7 @@ class PackageManager {
       case 'choco':
         // FIXME: chocolatey didn't install the MSVC compiler
         await this._chocoInstallPackage(['visualstudio2022buildtools', 'ninja', 'cmake'])
+        await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--package-parameters "'--add Microsoft.VisualStudio.Workload.VCTools'"`])
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
@@ -142,6 +143,13 @@ class PackageManager {
       await $`choco install -y ${pkg}`.pipe(process.stderr)
     }
   }
+
+  _chocoInstallPackageWithArgs = async function (packageList: string[], argsList: string[]) {
+    for (let i = 0; i < packageList.length; i++) {
+      await $`choco install -y ${packageList[i]} ${argsList[i]}`.pipe(process.stderr)
+    }
+  }
+
   _aptInstallPackage = async function (packageList: string[]) {
     await $`sudo apt-get update`.pipe(process.stderr)
     for (const pkg of packageList) {
