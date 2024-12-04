@@ -60,8 +60,8 @@ class PackageManager {
     switch (this.packageManager) {
       case 'choco':
         // FIXME: chocolatey didn't install the MSVC compiler
-        await this._chocoInstallPackage(['visualstudio2022buildtools', 'ninja', 'cmake'])
-        await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--params "--add Microsoft.VisualStudio.Workload.VCTools"`])
+        await this._chocoInstallPackage(['visualstudio2019buildtools','visualstudio2019-workload-vctools','ninja', 'cmake'])
+        // await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--params "--add Microsoft.VisualStudio.Workload.VCTools"`])
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
