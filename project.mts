@@ -158,7 +158,7 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      await setupMSVCDevCmd('x64', undefined, undefined, false, false, '2022')
+      await setupMSVCDevCmd('x64', undefined, undefined, false, false, '2019')
     }
     await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }

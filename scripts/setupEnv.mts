@@ -59,8 +59,8 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        // FIXME: chocolatey didn't install the MSVC compiler
         await this._chocoInstallPackage(['visualstudio2019buildtools','visualstudio2019-workload-vctools','ninja', 'cmake'])
+        // FIXME: chocolatey didn't install the MSVC compiler,current using MSVC-2019
         // await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--params "--add Microsoft.VisualStudio.Workload.VCTools"`])
         break
       case 'apt':
