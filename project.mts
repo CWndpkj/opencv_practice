@@ -1,7 +1,7 @@
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import 'zx/globals'
-import { MSVCInstallDir } from './scripts/setupEnv.mjs'
+import { MSVCInstallDriver,MSVCInstallPostfix } from './scripts/setupEnv.mjs'
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
