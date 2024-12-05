@@ -59,7 +59,7 @@ tools.build:skip_test = True`)
 
   // For windows to use PowerShell to invoke .bat script with environment variables saved
   private modPowerShell = async function () {
-    const powerShellProfile = (await $`echo $PROFILE`).toString()
+    const powerShellProfile = (await $`echo $PROFILE`).toString().trim()
     if (powerShellProfile) {
       if (!fs.existsSync(powerShellProfile)) {
         fs.createFileSync(powerShellProfile)
@@ -85,10 +85,6 @@ function
     }
 }`)
       }
-    }
-    else {
-      console.error("PowerShell profile not found")
-      process.exit
     }
   }
 }
