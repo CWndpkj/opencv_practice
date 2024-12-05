@@ -61,30 +61,16 @@ tools.build:skip_test = True`)
   private modPowerShell = async function () {
     const powerShellProfile = (await $`echo $PROFILE`).toString()
     if (powerShellProfile) {
-      if (fs.existsSync(powerShellProfile)) {
-        const content = await fs.readFile(powerShellProfile, 'utf8')
-        if (content.includes("Invoke-CmdScript")) {
-          console.log("PowerShell profile already configured")
-          return
-        } else {
-          fs.appendFileSync(powerShellProfile, `
-function
-  Invoke-CmdScript {
-    param(
-      [String] $scriptName
-    )
-    $cmdLine = """$scriptName"" $args & set"
-    & $Env:SystemRoot\system32\cmd.exe /c $cmdLine |
-    select-string '^([^=]*)=(.*)$' | foreach-object {
-      $varName = $_.Matches[0].Groups[1].Value
-      $varValue = $_.Matches[0].Groups[2].Value
-      set-item Env:$varName $varValue
-    }
-}`)
-        }
+      if (!fs.existsSync(powerShellProfile)) {
+        fs.createFileSync(powerShellProfile)
+      }
+      const content = await fs.readFile(powerShellProfile, 'utf8')
+      if (content.includes("Invoke-CmdScript")) {
+        console.log("PowerShell profile already configured")
+        return
       }
       else {
-        fs.writeFileSync(powerShellProfile, `
+        fs.appendFileSync(powerShellProfile, `
 function
   Invoke-CmdScript {
     param(
