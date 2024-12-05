@@ -70,19 +70,22 @@ tools.build:skip_test = True`)
         return
       }
       else {
-        fs.appendFileSync(powerShellProfile, `
-function
-  Invoke-CmdScript {
-    param(
-      [String] $scriptName
+        fs.appendFileSync(powerShellProfile, ` 
+function Invoke-Environment {
+    param
+    (
+        # Any cmd shell command, normally a configuration batch file.
+        [Parameter(Mandatory=$true)]
+        [string] $Command
     )
-    $cmdLine = """$scriptName"" $args & set"
-    & $Env:SystemRoot\system32\cmd.exe /c $cmdLine |
-    select-string '^([^=]*)=(.*)$' | foreach-object {
-      $varName = $_.Matches[0].Groups[1].Value
-      $varValue = $_.Matches[0].Groups[2].Value
-      set-item Env:$varName $varValue
-    }
+
+    $Command = "\`"" + $Command + "\`""
+    cmd /c "$Command > nul 2>&1 && set" | . { process {
+        if ($_ -match '^([^=]+)=(.*)') {
+            [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+        }
+    }}
+
 }`)
       }
     }
