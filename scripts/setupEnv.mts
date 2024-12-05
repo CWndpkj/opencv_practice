@@ -4,15 +4,12 @@
 /// 2. configure conan's profile and global configuration
 
 import 'zx/globals'
-import { quotePowerShell } from 'zx'
+import { usePowerShell } from 'zx'
 
-// WARN: The install path must not conatin spaces
-export const MSVCInstallDriver = "C"
-export const MSVCInstallPostfix = "MicrosoftVisualStudio"
+import { MSVCInstallDriver, MSVCInstallPostfix } from './consts.mjs'
 
 if (process.platform === 'win32') {
-  $.quote = quotePowerShell
-  $.shell = 'powershell'
+  usePowerShell()
 }
 
 if (process.platform != 'win32') {
@@ -86,7 +83,6 @@ function Invoke-Environment {
             [System.Environment]::SetEnvironmentVariable($matches[1], $matches[2])
         }
     }}
-
 }`)
       }
     }
@@ -116,7 +112,7 @@ class PackageManager {
         await this._chocoInstallPackage(['ninja', 'cmake'])
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
-        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}"`
+        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools --path shared=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\shared"`
           .pipe(process.stderr)
         break
       case 'apt':
