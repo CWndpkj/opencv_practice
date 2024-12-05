@@ -111,7 +111,7 @@ class PackageManager {
       case 'choco':
         await this._chocoInstallPackage(['ninja', 'cmake'])
         // FIXME: Doesn't work
-        await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', `--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`)
+        await this._chocoInstallPackageWithArgs([`visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
         // await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`
         // .pipe(process.stderr)
         break
@@ -196,8 +196,8 @@ class PackageManager {
     }
   }
 
-  _chocoInstallPackageWithArgs = async function (pkg: string, args: string[]) {
-    await $`choco install -y ${pkg} ${args}`.pipe(process.stderr)
+  _chocoInstallPackageWithArgs = async function (pkgWithArgs:string ) {
+    await $`choco install -y ${pkgWithArgs}`.pipe(process.stderr)
   }
 
   _aptInstallPackage = async function (packageList: string[]) {
