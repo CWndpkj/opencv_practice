@@ -66,9 +66,8 @@ tools.build:skip_test = True`)
         if (content.includes("Invoke-CmdScript")) {
           console.log("PowerShell profile already configured")
           return
-        }
-      } else {
-        await fs.appendFile(powerShellProfile, `
+        } else {
+          fs.appendFileSync(powerShellProfile, `
 function
   Invoke-CmdScript {
     param(
@@ -82,9 +81,26 @@ function
       set-item Env:$varName $varValue
     }
 }`)
-        console.log("PowerShell profile configured")
+        }
       }
-    } else {
+      else {
+        fs.writeFileSync(powerShellProfile, `
+function
+  Invoke-CmdScript {
+    param(
+      [String] $scriptName
+    )
+    $cmdLine = """$scriptName"" $args & set"
+    & $Env:SystemRoot\system32\cmd.exe /c $cmdLine |
+    select-string '^([^=]*)=(.*)$' | foreach-object {
+      $varName = $_.Matches[0].Groups[1].Value
+      $varValue = $_.Matches[0].Groups[2].Value
+      set-item Env:$varName $varValue
+    }
+}`)
+      }
+    }
+    else {
       console.error("PowerShell profile not found")
       process.exit
     }
