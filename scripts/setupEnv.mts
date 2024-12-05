@@ -8,6 +8,8 @@ import { quotePowerShell } from 'zx'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+export const MSVCInstallDir = "C:\\Program Files\\Microsoft Visual Studio\\2022\\BuildTools"
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -20,36 +22,90 @@ if (process.platform != 'win32') {
   $.prefix = "set -eo pipefail;"
 }
 
+
 class ConfigModifier {
-  modConan = async function () {
-    if (process.platform === 'win32') {
-      await $`$Env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") ;
-            conan profile detect --force`.pipe(process.stderr)
-      fs.copySync(`${__dirname}/../.github/config_files/.conan2`, `${process.env.USERPROFILE}/.conan2`)
-      console.log("=========conan global config=========")
-      await $`type $env:USERPROFILE/.conan2/global.conf`.pipe(process.stderr)
+  paltform: string
+  constructor() {
+    this.paltform = process.platform
+  }
+  mod = async function () {
+    if (this.paltform === 'linux') {
+      await this.unixMod()
+    } else if (this.paltform === 'win32') {
+      await this.windowsMod()
+    } else {
+      console.error("Unsupported platform")
+      process.exit
     }
-    else {
-      await $`source ~/.bashrc && conan profile detect --force`.pipe(process.stderr)
-      await $`cp -rf ${__dirname}/../.github/config_files/.conan2/* ~/.conan2`.pipe(process.stderr)
-      console.log("=========conan global config=========")
-      await $`cat ~/.conan2/global.conf`.pipe(process.stderr)
+  }
+  private unixMod = async function () {
+    await this.modConan()
+  }
+  private windowsMod = async function () {
+    await this.modPowerShell()
+  }
+  // For linux to use System package manager to install packages
+  private modConan = async function () {
+    const conanHome = `${process.env.HOME}/.conan2`
+    await $`source ~/.bashrc && conan profile detect --force`.pipe(process.stderr)
+    const content = fs.readFileSync(`${conanHome}/global.conf`, 'utf8')
+    if (content.includes("tools.system.package_manager:mode")) {
+      console.log("conan global config already configured")
+      return
+    } else {
+      fs.appendFileSync(`${conanHome}/global.conf`, `
+tools.system.package_manager:mode = install
+tools.system.package_manager:sudo = True
+tools.build:skip_test = True`)
+    }
+    console.log("=========conan global config=========")
+    console.log(fs.readFileSync(`${conanHome}/global.conf`, 'utf8'))
+  }
+
+  // For windows to use PowerShell to invoke .bat script with environment variables saved
+  private modPowerShell = async function () {
+    const powerShellProfile = process.env.PROFILE
+    if (powerShellProfile) {
+      const content = await fs.readFile(powerShellProfile, 'utf8')
+      if (content.includes("Invoke-CmdScript")) {
+        console.log("PowerShell profile already configured")
+        return
+      } else {
+        await fs.appendFile(powerShellProfile, `
+function
+  Invoke-CmdScript {
+    param(
+      [String] $scriptName
+    )
+    $cmdLine = """$scriptName"" $args & set"
+    & $Env:SystemRoot\system32\cmd.exe /c $cmdLine |
+    select-string '^([^=]*)=(.*)$' | foreach-object {
+      $varName = $_.Matches[0].Groups[1].Value
+      $varValue = $_.Matches[0].Groups[2].Value
+      set-item Env:$varName $varValue
+    }
+}`)
+        console.log("PowerShell profile configured")
+      }
+    } else {
+      console.error("PowerShell profile not found")
+      process.exit
     }
   }
 }
 
 
-class setupCpp {
-  async run() {
-    // WARN: Need to source ~/.cpprc # activate cpp environment variables
-    if (process.platform === 'win32') {
-      await $`npx setup-cpp --compiler msvc-2022 --vcvarsall true --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
-    }
-    else if (process.platform === 'linux') {
-      await $`sudo npx setup-cpp --compiler gcc --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
-    }
-  }
-}
+// class setupCpp {
+//   async run() {
+//     // WARN: Need to source ~/.cpprc # activate cpp environment variables
+//     if (process.platform === 'win32') {
+//       await $`npx setup-cpp --compiler msvc-2022 --vcvarsall true --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
+//     }
+//     else if (process.platform === 'linux') {
+//       await $`sudo npx setup-cpp --compiler gcc --cmake true --conan true --ninja true --ccache true`.pipe(process.stderr)
+//     }
+//   }
+// }
 
 class PackageManager {
   packageManager: string
@@ -60,9 +116,8 @@ class PackageManager {
     switch (this.packageManager) {
       case 'choco':
         await this._chocoInstallPackage(['ninja', 'cmake'])
-        // FIXME: chocolatey didn't install the MSVC compiler,current using MSVC-2019
-        // await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--params "--add Microsoft.VisualStudio.Workload.VCTools"`])
-        await $`choco install visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project"`
+        await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
+        // await $`choco install visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`.pipe(process.stderr)
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
@@ -147,7 +202,8 @@ class PackageManager {
 
   _chocoInstallPackageWithArgs = async function (packageList: string[], argsList: string[]) {
     for (let i = 0; i < packageList.length; i++) {
-      await $`choco install -y ${packageList[i]} ${argsList[i]}`.pipe(process.stderr)
+      const pkgWithArgs = `${packageList[i]} ${argsList[i]}`
+      await $`choco install -y ${pkgWithArgs}`.pipe(process.stderr)
     }
   }
 
@@ -194,7 +250,7 @@ async function main() {
   // await setup.run()
 
   const configModifier = new ConfigModifier()
-  await configModifier.modConan()
+  await configModifier.mod()
 }
 
 main()

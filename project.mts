@@ -1,7 +1,7 @@
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import 'zx/globals'
-import { setupMSVCDevCmd } from "msvc-dev-cmd/lib.js"
+import { MSVCInstallDir } from './scripts/setupEnv.mjs'
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
@@ -158,7 +158,7 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      await setupMSVCDevCmd('x64', undefined, undefined, false, false, '2019')
+      await $`Invoke-CmdScript ${MSVCInstallDir}\\VC\\Auxiliary\\Build\\vcvars64.bat && cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
     }
     await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
@@ -169,7 +169,7 @@ class Excutor {
 
   runTarget = async function () {
     if (process.platform === 'win32') {
-      await $`cmd /c ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.bat;${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
+      await $`${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;${this.projectConfigs.configureConfig.binaryDir}\\bin\\${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
     } else {
       await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
     }

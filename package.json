@@ -1,6 +1,5 @@
 {
   "dependencies": {
     "zx": "^8.2.4",
-    "msvc-dev-cmd": "github:aminya/msvc-dev-cmd"
   }
 }
