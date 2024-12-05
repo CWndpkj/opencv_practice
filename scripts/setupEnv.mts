@@ -7,10 +7,8 @@ import 'zx/globals'
 import { quotePowerShell } from 'zx'
 
 // WARN: The install path must not conatin spaces
-const MSVCInstallDriver = "C"
-const MSVCInstallPostfix = "MicrosoftVisualStudio"
-
-export const MSVCInstallDir = `${MSVCInstallDriver}\\${MSVCInstallPostfix}`
+export const MSVCInstallDriver = "C"
+export const MSVCInstallPostfix = "MicrosoftVisualStudio"
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
@@ -20,7 +18,6 @@ if (process.platform === 'win32') {
 if (process.platform != 'win32') {
   $.prefix = "set -eo pipefail;"
 }
-
 
 class ConfigModifier {
   paltform: string
