@@ -6,7 +6,7 @@
 import 'zx/globals'
 import { quotePowerShell } from 'zx'
 
-// C:\User\username\
+// WARN: The install path must not conatin spaces
 const MSVCInstallDriver = "C"
 const MSVCInstallPostfix = "MicrosoftVisualStudio"
 
