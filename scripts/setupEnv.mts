@@ -6,7 +6,11 @@
 import 'zx/globals'
 import { quotePowerShell } from 'zx'
 
-export const MSVCInstallDir = 'test'
+// C:\User\username\
+const MSVCInstallDriver = "C"
+const MSVCInstallPostfix = "Program files\\Microsoft Visual Studio"
+
+export const MSVCInstallDir = `${MSVCInstallDriver}\\${MSVCInstallPostfix}`
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
@@ -115,7 +119,7 @@ class PackageManager {
         await this._chocoInstallPackage(['ninja', 'cmake'])
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
-        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`
+        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}"`
           .pipe(process.stderr)
         break
       case 'apt':
