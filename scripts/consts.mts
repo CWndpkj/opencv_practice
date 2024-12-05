@@ -1,3 +1,1 @@
-// WARN: The install path must not conatin spaces
-export const MSVCInstallDriver = "C"
-export const MSVCInstallPostfix = "MicrosoftVisualStudio"
+export const MSVCInstallDir = "C:\\Program Files\\Microsoft Visual Studio"

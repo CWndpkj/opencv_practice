@@ -6,7 +6,7 @@
 import 'zx/globals'
 import { usePowerShell } from 'zx'
 import { exec } from 'child_process';
-import { MSVCInstallDriver, MSVCInstallPostfix } from './consts.mjs'
+import { MSVCInstallDir } from './consts.mjs'
 
 if (process.platform === 'win32') {
   usePowerShell()
@@ -70,7 +70,7 @@ tools.build:skip_test = True`)
     const registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
     const valueName = 'KitsRoot10';
     const valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
-    const valueData = 'C:\\MSVC\\Kits';
+    const valueData = MSVCInstallDir + '\\Windows Kits';
 
     // 如果注册表项存在，修改其值
     const regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
@@ -141,10 +141,23 @@ class PackageManager {
     switch (this.packageManager) {
       case 'choco':
         await this._chocoInstallPackage(['ninja', 'cmake'])
-        // FIXME: Doesn't work
-        // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
-        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools --path shared=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\shared --path cache=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\cache"`
+          // FIXME: Doesn't work
+          // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
+          // await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools --path shared=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\shared --path cache=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\cache"`
           .pipe(process.stderr)
+        const chocoInstallCommand = `choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache"`
+
+        exec(chocoInstallCommand, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            console.error(`Stderr: ${stderr}`);
+            return;
+          }
+          console.log(`Stdout: ${stdout}`);
+        });
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
