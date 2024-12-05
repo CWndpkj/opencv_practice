@@ -8,7 +8,7 @@ import { quotePowerShell } from 'zx'
 
 // C:\User\username\
 const MSVCInstallDriver = "C"
-const MSVCInstallPostfix = "Program files\\Microsoft Visual Studio"
+const MSVCInstallPostfix = "MicrosoftVisualStudio"
 
 export const MSVCInstallDir = `${MSVCInstallDriver}\\${MSVCInstallPostfix}`
 
