@@ -159,7 +159,7 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      await $`Invoke-Environment ${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
+      await $`Invoke-Environment ${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
     } else
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
