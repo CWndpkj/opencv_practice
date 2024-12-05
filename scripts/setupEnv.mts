@@ -5,7 +5,7 @@
 
 import 'zx/globals'
 import { usePowerShell } from 'zx'
-
+import { exec } from 'child_process';
 import { MSVCInstallDriver, MSVCInstallPostfix } from './consts.mjs'
 
 if (process.platform === 'win32') {
@@ -36,6 +36,7 @@ class ConfigModifier {
   }
   private windowsMod = async function () {
     await this.modPowerShell()
+    await this.modWindowsRegistry()
   }
   // For linux to use System package manager to install packages
   private modConan = async function () {
@@ -55,6 +56,27 @@ tools.build:skip_test = True`)
     console.log(fs.readFileSync(`${conanHome}/global.conf`, 'utf8'))
   }
 
+  private modWindowsRegistry = async function () {
+    // 定义要检查和修改的注册表项路径和值
+    const registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
+    const valueName = 'KitsRoot10';
+    const valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
+    const valueData = 'C:\\MSVC\\Kits';
+
+    // 如果注册表项存在，修改其值
+    const regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
+    exec(regAddCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`Stderr: ${stderr}`);
+        return;
+      }
+      console.log(`Stdout: ${stdout}`);
+    });
+  }
   // For windows to use PowerShell to invoke .bat script with environment variables saved
   private modPowerShell = async function () {
     const powerShellProfile = (await $`echo $PROFILE`).toString().trim()
