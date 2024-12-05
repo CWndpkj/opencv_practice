@@ -69,7 +69,7 @@ tools.build:skip_test = True`)
         fs.createFileSync(powerShellProfile)
       }
       const content = await fs.readFile(powerShellProfile, 'utf8')
-      if (content.includes("Invoke-CmdScript")) {
+      if (content.includes("Invoke-Environment")) {
         console.log("PowerShell profile already configured")
         return
       }
