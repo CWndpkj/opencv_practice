@@ -112,7 +112,7 @@ class PackageManager {
         await this._chocoInstallPackage(['ninja', 'cmake'])
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
-        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools --path shared=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\shared"`
+        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools --path shared=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\shared --path cache=${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\cache"`
           .pipe(process.stderr)
         break
       case 'apt':
