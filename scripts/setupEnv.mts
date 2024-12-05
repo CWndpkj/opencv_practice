@@ -59,9 +59,10 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(['visualstudio2019buildtools','visualstudio2019-workload-vctools','ninja', 'cmake'])
+        await this._chocoInstallPackage('ninja', 'cmake'])
         // FIXME: chocolatey didn't install the MSVC compiler,current using MSVC-2019
-        // await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--params "--add Microsoft.VisualStudio.Workload.VCTools"`])
+        await this._chocoInstallPackageWithArgs(['visualstudio2022buildtools'], [`--params "--add Microsoft.VisualStudio.Workload.VCTools"`])
+        await $`choco install visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project"`
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
