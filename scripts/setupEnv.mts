@@ -64,7 +64,7 @@ tools.build:skip_test = True`)
 
   // For windows to use PowerShell to invoke .bat script with environment variables saved
   private modPowerShell = async function () {
-    const powerShellProfile = process.env.PROFILE
+    const powerShellProfile = (await $`echo $PROFILE`).stdout
     if (powerShellProfile) {
       const content = await fs.readFile(powerShellProfile, 'utf8')
       if (content.includes("Invoke-CmdScript")) {
