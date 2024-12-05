@@ -61,10 +61,12 @@ tools.build:skip_test = True`)
   private modPowerShell = async function () {
     const powerShellProfile = (await $`echo $PROFILE`).toString()
     if (powerShellProfile) {
-      const content = await fs.readFile(powerShellProfile, 'utf8')
-      if (content.includes("Invoke-CmdScript")) {
-        console.log("PowerShell profile already configured")
-        return
+      if (fs.existsSync(powerShellProfile)) {
+        const content = await fs.readFile(powerShellProfile, 'utf8')
+        if (content.includes("Invoke-CmdScript")) {
+          console.log("PowerShell profile already configured")
+          return
+        }
       } else {
         await fs.appendFile(powerShellProfile, `
 function
@@ -113,7 +115,7 @@ class PackageManager {
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
         await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`
-        // .pipe(process.stderr)
+          .pipe(process.stderr)
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
