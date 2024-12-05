@@ -21,7 +21,17 @@ class ConfigModifier {
   constructor() {
     this.paltform = process.platform
   }
-  mod = async function () {
+  modSystem = async function () {
+    if (this.paltform === 'linux') {
+      // await this.modLinux()
+    } else if (this.paltform === 'win32') {
+      await this.modWindowsRegistry()
+    } else {
+      console.error("Unsupported platform")
+      process.exit
+    }
+  }
+  modConfig = async function () {
     if (this.paltform === 'linux') {
       await this.unixMod()
     } else if (this.paltform === 'win32') {
@@ -36,7 +46,6 @@ class ConfigModifier {
   }
   private windowsMod = async function () {
     await this.modPowerShell()
-    await this.modWindowsRegistry()
   }
   // For linux to use System package manager to install packages
   private modConan = async function () {
@@ -254,6 +263,9 @@ class PackageManager {
 }
 
 async function main() {
+  const configModifier = new ConfigModifier()
+  configModifier.modSystem()
+
   const packageManager = new PackageManager()
   await packageManager.detectSystemPackageManager()
   console.log(`Detected package manager: ${packageManager.packageManager}`)
@@ -261,8 +273,7 @@ async function main() {
   await packageManager.installConfigPy()
   await packageManager.installConan()
 
-  const configModifier = new ConfigModifier()
-  await configModifier.mod()
+  await configModifier.modConfig()
 }
 
 main()
