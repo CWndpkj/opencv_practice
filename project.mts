@@ -160,21 +160,19 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      const cmakeConfigreCommand = `Invoke-Environment ${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`
-      exec(cmakeConfigreCommand, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.error(`Stderr: ${stderr}`);
-          return;
-        }
-        console.log(`Stdout: ${stdout}`);
-      });
-      // const MSVCInstallDriver = MSVCInstallDir.split(':')[0]
-      // const MSVCInstallPostfix = MSVCInstallDir.split(':')[1].split('\\').join('\\\\')
-      // await $`Invoke-Environment ${MSVCInstallDriver}:\\${MSVCInstallPostfix}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
+      // const cmakeConfigreCommand = `Invoke-Environment ${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`
+      // exec(cmakeConfigreCommand, (error, stdout, stderr) => {
+      //   if (error) {
+      //     console.error(`Error: ${error.message}`);
+      //     return;
+      //   }
+      //   if (stderr) {
+      //     console.error(`Stderr: ${stderr}`);
+      //     return;
+      //   }
+      //   console.log(`Stdout: ${stdout}`);
+      // });
+      await $`Invoke-Environment \"${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat\";cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
     } else
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
