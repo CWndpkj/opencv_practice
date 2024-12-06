@@ -1,7 +1,6 @@
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import 'zx/globals'
-import { exec } from 'child_process';
 
 import { MSVCInstallDir } from './scripts/consts.mjs'
 
@@ -160,20 +159,8 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      // const cmakeConfigreCommand = `Invoke-Environment ${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`
-      // exec(cmakeConfigreCommand, (error, stdout, stderr) => {
-      //   if (error) {
-      //     console.error(`Error: ${error.message}`);
-      //     return;
-      //   }
-      //   if (stderr) {
-      //     console.error(`Stderr: ${stderr}`);
-      //     return;
-      //   }
-      //   console.log(`Stdout: ${stdout}`);
-      // });
-      console.log(`Invoke-Environment \"${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat\";cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`)
-      await $`Invoke-Environment ${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.batcmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
+      const cmakeConfigreCommand = `Invoke-Environment ${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`
+      await $`cmd /C ${cmakeConfigreCommand}`.pipe(process.stderr)
     } else
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
