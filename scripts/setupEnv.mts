@@ -67,7 +67,7 @@ tools.build:skip_test = True`)
 
   private modWindowsRegistry = async function () {
     // 定义要检查和修改的注册表项路径和值
-    let registryPath = 'HKLM\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots';
+    let registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
     let valueName = 'KitsRoot10';
     let valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
     let valueData = MSVCInstallDir + '\\Windows Kits';
@@ -92,7 +92,7 @@ tools.build:skip_test = True`)
       // Add more components as needed
     ];
 
-    registryPath = 'HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\Setup';
+    registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\Setup';
     valueType = 'REG_SZ'; // Can be REG_SZ, REG_DWORD, etc.
 
     components.forEach(component => {

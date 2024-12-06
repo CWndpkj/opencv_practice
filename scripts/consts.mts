@@ -1,1 +1,2 @@
-export const MSVCInstallDir = "%ProgramFiles%\\Microsoft Visual Studio"
+// ChocolateyInstall=C:\ProgramData\chocolatey
+export const MSVCInstallDir = "%ChocolateyInstall%\\Microsoft Visual Studio"
