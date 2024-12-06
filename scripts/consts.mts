@@ -1,1 +1,1 @@
-export const MSVCInstallDir = "C:\\Program Files\\Microsoft Visual Studio"
+export const MSVCInstallDir = "%ProgramFiles%\\Microsoft Visual Studio"

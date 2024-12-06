@@ -67,7 +67,7 @@ tools.build:skip_test = True`)
 
   private modWindowsRegistry = async function () {
     // 定义要检查和修改的注册表项路径和值
-    let registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
+    let registryPath = 'HKLM\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots';
     let valueName = 'KitsRoot10';
     let valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
     let valueData = MSVCInstallDir + '\\Windows Kits';
@@ -171,7 +171,7 @@ class PackageManager {
         await this._chocoInstallPackage(['ninja', 'cmake'])
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
-        await $`cmd /C "choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache""`
+        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project"`
         // .pipe(process.stderr)
         // const chocoInstallCommand = `choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache"`
         // console.log(chocoInstallCommand)
