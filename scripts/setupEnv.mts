@@ -67,13 +67,12 @@ tools.build:skip_test = True`)
 
   private modWindowsRegistry = async function () {
     // 定义要检查和修改的注册表项路径和值
-    const registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
-    const valueName = 'KitsRoot10';
-    const valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
-    const valueData = MSVCInstallDir + '\\Windows Kits';
+    let registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
+    let valueName = 'KitsRoot10';
+    let valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
+    let valueData = MSVCInstallDir + '\\Windows Kits';
 
-    // 如果注册表项存在，修改其值
-    const regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
+    let regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
     exec(regAddCommand, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error: ${error.message}`);
@@ -85,6 +84,35 @@ tools.build:skip_test = True`)
       }
       console.log(`Stdout: ${stdout}`);
     });
+
+    const components = [
+      { name: 'SharedInstallationPath', path: MSVCInstallDir + '\\shared' },
+      { name: 'VCInstallDir', path: MSVCInstallDir + '\\VC' },
+      { name: 'SDKInstallDir', path: MSVCInstallDir + '\\SDK' },
+      // Add more components as needed
+    ];
+
+    registryPath = 'HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\Setup';
+    valueType = 'REG_SZ'; // Can be REG_SZ, REG_DWORD, etc.
+
+    components.forEach(component => {
+      const valueName = component.name;
+      const valueData = component.path;
+      const regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
+
+      exec(regAddCommand, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.error(`Stderr: ${stderr}`);
+          return;
+        }
+        console.log(`Stdout: ${stdout}`);
+      });
+    });
+
   }
   // For windows to use PowerShell to invoke .bat script with environment variables saved
   private modPowerShell = async function () {
