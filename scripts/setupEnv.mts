@@ -290,7 +290,10 @@ class PackageManager {
   }
   _pipInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`source ~/.bashrc && pip install ${pkg}`.pipe(process.stderr)
+      await $`export PYENV_ROOT="$HOME/.pyenv" &&
+            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" &&
+            eval "$(pyenv init -)" &&
+            pip install ${pkg}`.pipe(process.stderr)
     }
   }
 }
