@@ -210,6 +210,8 @@ class PackageManager {
             echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && 
             echo 'eval "$(pyenv init -)"' >> ~/.bashrc`.pipe(process.stderr)
       await $`source ~/.bashrc &&
+            cat ~/.bashrc &&
+            echo $PATH &&
             pyenv install -s 3 && 
             pyenv global 3 &&
             curl -s https://bootstrap.pypa.io/get-pip.py | python`.pipe(process.stderr)
