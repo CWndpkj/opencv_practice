@@ -92,7 +92,7 @@ tools.build:skip_test = True`)
       // Add more components as needed
     ];
 
-    registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\Setup';
+    registryPath = 'HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\Setup';
     valueType = 'REG_SZ'; // Can be REG_SZ, REG_DWORD, etc.
 
     components.forEach(component => {
