@@ -160,7 +160,7 @@ class Excutor {
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
       const cmakeConfigreCommand = `Invoke-Environment ${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat;cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`
-      await $`cmd /C ${cmakeConfigreCommand}`.pipe(process.stderr)
+      await $`powershell -Command "${cmakeConfigreCommand}"`.pipe(process.stderr)
     } else
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
