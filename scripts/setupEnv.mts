@@ -85,33 +85,33 @@ tools.build:skip_test = True`)
       console.log(`Stdout: ${stdout}`);
     });
 
-    const components = [
-      { name: 'SharedInstallationPath', path: MSVCInstallDir + '\\shared' },
-      { name: 'VCInstallDir', path: MSVCInstallDir + '\\VC' },
-      { name: 'SDKInstallDir', path: MSVCInstallDir + '\\SDK' },
-      // Add more components as needed
-    ];
-
-    registryPath = 'HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\Setup';
-    valueType = 'REG_SZ'; // Can be REG_SZ, REG_DWORD, etc.
-
-    components.forEach(component => {
-      const valueName = component.name;
-      const valueData = component.path;
-      const regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
-
-      exec(regAddCommand, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.error(`Stderr: ${stderr}`);
-          return;
-        }
-        console.log(`Stdout: ${stdout}`);
-      });
-    });
+    // const components = [
+    //   { name: 'SharedInstallationPath', path: MSVCInstallDir + '\\shared' },
+    //   { name: 'VCInstallDir', path: MSVCInstallDir + '\\VC' },
+    //   { name: 'SDKInstallDir', path: MSVCInstallDir + '\\SDK' },
+    //   // Add more components as needed
+    // ];
+    //
+    // registryPath = 'HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\Setup';
+    // valueType = 'REG_SZ'; // Can be REG_SZ, REG_DWORD, etc.
+    //
+    // components.forEach(component => {
+    //   const valueName = component.name;
+    //   const valueData = component.path;
+    //   const regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
+    //
+    //   exec(regAddCommand, (error, stdout, stderr) => {
+    //     if (error) {
+    //       console.error(`Error: ${error.message}`);
+    //       return;
+    //     }
+    //     if (stderr) {
+    //       console.error(`Stderr: ${stderr}`);
+    //       return;
+    //     }
+    //     console.log(`Stdout: ${stdout}`);
+    //   });
+    // });
 
   }
   // For windows to use PowerShell to invoke .bat script with environment variables saved
@@ -171,7 +171,7 @@ class PackageManager {
         await this._chocoInstallPackage(['ninja', 'cmake'])
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
-        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project"`
+        await $`choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache""`
         // .pipe(process.stderr)
         // const chocoInstallCommand = `choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache"`
         // console.log(chocoInstallCommand)
