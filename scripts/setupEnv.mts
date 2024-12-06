@@ -70,7 +70,7 @@ tools.build:skip_test = True`)
     let registryPath = 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots';
     let valueName = 'KitsRoot10';
     let valueType = 'REG_SZ'; // 可以是 REG_SZ, REG_DWORD, 等
-    let valueData = MSVCInstallDir + '\\Windows Kits';
+    let valueData = MSVCInstallDir + '\\WindowsKits';
 
     let regAddCommand = `reg add "${registryPath}" /v "${valueName}" /t ${valueType} /d "${valueData}" /f`;
     exec(regAddCommand, (error, stdout, stderr) => {
