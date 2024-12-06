@@ -3,10 +3,10 @@
 /// 1. install build essentials and package manager(we use conan here)
 /// 2. configure conan's profile and global configuration
 
-import 'zx/globals'
-import { usePowerShell } from 'zx'
 import { exec } from 'child_process';
-import { MSVCInstallDir } from './consts.mjs'
+import { usePowerShell } from 'zx';
+import 'zx/globals';
+import { MSVCInstallDir } from './consts.mjs';
 
 if (process.platform === 'win32') {
   usePowerShell()
@@ -45,7 +45,7 @@ class ConfigModifier {
     await this.modConan()
   }
   private windowsMod = async function () {
-    await this.modPowerShell()
+    // await this.modPowerShell()
   }
   // For linux to use System package manager to install packages
   private modConan = async function () {

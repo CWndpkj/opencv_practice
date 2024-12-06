@@ -1,8 +1,8 @@
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import 'zx/globals'
-
 import { MSVCInstallDir } from './scripts/consts.mjs'
+import { setupMSVCDevCmd } from './scripts/setupMSVCDev.mts'
 
 if (process.platform === 'win32') {
   $.quote = quotePowerShell
@@ -159,7 +159,16 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      const cmakeConfigreCommand = `"Invoke-Environment '${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat';cmake -S . --preset=${this.projectConfigs.configureConfig.preset}"`
+     setupMSVCDevCmd(
+        "x64",
+        MSVCInstallDir,
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined
+      );
+      const cmakeConfigreCommand = `"cmake -S . --preset=${this.projectConfigs.configureConfig.preset}"`
       await $`powershell -Command ${cmakeConfigreCommand}`.pipe(process.stderr)
     } else
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)

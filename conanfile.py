@@ -15,7 +15,7 @@ class ConanApplication(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.user_presets_path = "CMakePresets.json"
+        tc.user_presets_path = False
         tc.generate()
 
     def requirements(self):
@@ -23,5 +23,5 @@ class ConanApplication(ConanFile):
         for requirement in requirements:
             self.requires(requirement)
 
-    def configure(self):
-        self.options["*"].shared = True
+    # def configure(self):
+    #     self.options["*"].shared = True

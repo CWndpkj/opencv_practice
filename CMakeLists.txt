@@ -21,7 +21,6 @@ project(
 
 # TODO:currently in develop mode, should be removed in productive environment
 set(myproject_PACKAGING_MAINTAINER_MODE ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/PreventInSourceBuilds.cmake)
 include(ProjectOptions.cmake)
