@@ -172,6 +172,7 @@ class Excutor {
       //   }
       //   console.log(`Stdout: ${stdout}`);
       // });
+      console.log(`Invoke-Environment \"${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat\";cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`)
       await $`Invoke-Environment \"${MSVCInstallDir}\\buildTools\\VC\\Auxiliary\\Build\\vcvars64.bat\";cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
     } else
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
