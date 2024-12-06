@@ -1,6 +1,5 @@
 import 'zx/globals'
 import { throws } from 'assert'
-
 import { PathOrFileDescriptor } from 'fs-extra'
 import { MSVCInstallDir } from './scripts/consts.mjs'
 import { setupMSVCDevCmd } from './scripts/setupMSVCDev.mts'

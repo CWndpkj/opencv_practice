@@ -50,7 +50,10 @@ class ConfigModifier {
   // For linux to use System package manager to install packages
   private modConan = async function () {
     const conanHome = `${process.env.HOME}/.conan2`
-    await $`source ~/.bashrc && conan profile detect --force`.pipe(process.stderr)
+    await $`export PYENV_ROOT="$HOME/.pyenv" &&
+            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" &&
+            eval "$(pyenv init -)" &&
+            conan profile detect --force`.pipe(process.stderr)
     const content = fs.readFileSync(`${conanHome}/global.conf`, 'utf8')
     if (content.includes("tools.system.package_manager:mode")) {
       console.log("conan global config already configured")
