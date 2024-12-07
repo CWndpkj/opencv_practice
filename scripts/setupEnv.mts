@@ -7,6 +7,7 @@ import { exec } from 'child_process';
 import { usePowerShell } from 'zx';
 import 'zx/globals';
 import { MSVCInstallDir } from './consts.mjs';
+import { findVcvarsall } from "./setupMSVCDev.mjs"
 
 if (process.platform === 'win32') {
   usePowerShell()
@@ -171,14 +172,29 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(['ninja', 'cmake','nsis'])
+        let pkgNeedInstall = ['ninja', 'cmake', 'nsis']
+        pkgNeedInstall.filter(async (pkg) => {
+          if (this.commandExists(pkg)) {
+            console.log(`${pkg} already installed`)
+            return false
+          } else {
+            return true
+          }
+        })
+        await this._chocoInstallPackage(pkgNeedInstall)
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
 
         // choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=C:\MSVC 2022\buildTools --path shared=C:\MSVC 2022\shared --path cache=C:\MSVC 2022\cache"
 
-        const chocoInstallCommand = `choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache"`
-        await $`cmd /C ${chocoInstallCommand}`.pipe(process.stderr)
+        try {
+          findVcvarsall('2022', undefined)
+          console.info('MSVC 2022 already installed')
+        } catch {
+          console.info('Installing MSVC 2022')
+          const chocoInstallCommand = `choco install -y visualstudio2022buildtools --package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}\\buildTools --path shared=${MSVCInstallDir}\\shared --path cache=${MSVCInstallDir}\\cache"`
+          await $`cmd /C ${chocoInstallCommand}`.pipe(process.stderr)
+        }
         break
       case 'apt':
         await this._aptInstallPackage(['build-essential', 'cmake', 'zlib1g-dev', 'libffi-dev', 'libssl-dev', 'libbz2-dev', 'libreadline-dev', 'libsqlite3-dev',
@@ -196,6 +212,20 @@ class PackageManager {
       default:
         console.error("Unknown package manager")
         process.exit(1)
+    }
+  }
+
+  commandExists = async function (command: string) {
+    try {
+      if (process.platform === 'win32') {
+        await $`gcm -All ${command}`;
+        return true;
+      } else {
+        await $`which ${command}`;
+        return true;
+      }
+    } catch {
+      return false;
     }
   }
 

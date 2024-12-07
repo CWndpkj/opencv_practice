@@ -34,6 +34,7 @@ jobs:
         run: |
           cd ./scripts
           source ./setup.sh
+          source ~/.bashrc
 
       - name: Windows Setup Tools
         if: runner.os == 'Windows'
@@ -43,16 +44,21 @@ jobs:
           RefreshEnv.cmd
 
       - name: Project setup
-        run: tsx project.mts setup ${{matrix.cmake_preset}}
+        run: |
+          tsx project.mts setup ${{matrix.cmake_preset}}
 
       - name: Cmake configure
-        run: tsx project.mts config
+        run: |
+          tsx project.mts config
 
       - name: Cmake build
-        run: tsx project.mts build
+        run: |
+          tsx project.mts build
 
       - name: Cmake test
-        run: tsx project.mts test
+        run: |
+          tsx project.mts test
 
       - name: Cmake pack
-        run: tsx project.mts pack
+        run: |
+          tsx project.mts pack

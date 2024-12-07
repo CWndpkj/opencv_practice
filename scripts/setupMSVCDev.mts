@@ -59,7 +59,7 @@ function findWithVswhere(pattern, version_pattern) {
   return null;
 }
 
-function findVcvarsall(vsversion, vspath) {
+export function findVcvarsall(vsversion, vspath) {
   const vsversion_number = vsversion_to_versionnumber(vsversion);
   let version_pattern;
   if (vsversion_number) {
