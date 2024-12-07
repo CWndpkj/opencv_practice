@@ -173,14 +173,15 @@ class PackageManager {
     switch (this.packageManager) {
       case 'choco':
         const pkgList = ['ninja', 'cmake', 'nsis']
-        const pkgNeedInstall = pkgList.filter(async (pkg) => {
-          if (await this.commandExists(pkg)) {
+        const pkgNeedInstall = pkgList.filter((pkg) => {
+          if (this.commandExists(pkg)) {
             console.log(`${pkg} already installed`)
             return false
           } else {
             return true
           }
         })
+        console.log("######## Installing packages: ", pkgNeedInstall,"#########")
         await this._chocoInstallPackage(pkgNeedInstall)
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
@@ -215,13 +216,13 @@ class PackageManager {
     }
   }
 
-  commandExists = async function (command: string) {
+  commandExists = function (command: string) {
     try {
       if (process.platform === 'win32') {
-        await $`gcm -All ${command}`;
+        $.sync`gcm -All ${command}`;
         return true;
       } else {
-        await $`which ${command}`;
+        $.sync`which ${command}`;
         return true;
       }
     } catch {
@@ -255,7 +256,7 @@ class PackageManager {
 
   installConan = async function () {
     if (process.platform === 'win32') {
-      if (!await this.commandExists('conan')) {
+      if (!this.commandExists('conan')) {
         await this._chocoInstallPackage(['conan'])
       }
     }
