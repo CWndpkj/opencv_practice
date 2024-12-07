@@ -29,21 +29,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: show list
-        working-directory: ${{ github.workspace}}
-        run: ls 
-
-      - name: Unix Setup Tools
+      - name: Setup Tools
         working-directory: ${{ github.workspace }}
-        if: runner.os != 'Windows'
-        run: source ./script/setup.sh
-
-      - name: Windows Setup Tools
-        working-directory: ${{ github.workspace }}
-        if: runner.os == 'Windows'
         run: |
-          ./script/setup.bat
+          if [ "${{ runner.os }}" == "Windows" ]; then
+          ./scripts/setup.bat
           RefreshEnv.cmd
+          else
+            source ./scripts/setup.sh
+          fi
 
       - name: Project setup
         working-directory: ${{ github.workspace }}
