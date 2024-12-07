@@ -1,11 +1,12 @@
+import 'zx/globals'
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
-import 'zx/globals'
-import { setupMSVCDevCmd } from "msvc-dev-cmd/lib.js"
+import { MSVCInstallDir } from './scripts/consts.mjs'
+import { setupMSVCDevCmd } from './scripts/setupMSVCDev.mts'
+import { usePowerShell } from 'zx';
 
 if (process.platform === 'win32') {
-  $.quote = quotePowerShell
-  $.shell = 'powershell'
+  usePowerShell()
 }
 
 // default is "set -euo pipefail;",
@@ -158,29 +159,66 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      await setupMSVCDevCmd('x64', undefined, undefined, false, false, '2019')
+      setupMSVCDevCmd(
+        "x64",
+        MSVCInstallDir,
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined
+      );
+      const cmakeConfigreCommand = `"cmake -S . --preset=${this.projectConfigs.configureConfig.preset}"`
+      await $`powershell -Command ${cmakeConfigreCommand}`.pipe(process.stderr)
+    } else {
+      await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
     }
-    await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
   }
 
   cmakeBuild = async function () {
-    await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
+    if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
+      setupMSVCDevCmd(
+        "x64",
+        MSVCInstallDir,
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined
+      );
+      const cmakeBuildCommand = `"Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target}"`
+
+      await $`powershell -Command ${cmakeBuildCommand}`.pipe(process.stderr)
+    } else {
+      await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
+    }
   }
 
   runTarget = async function () {
     if (process.platform === 'win32') {
-      await $`cmd /c ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.bat;${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
+      const runTargetCommand = `"Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;${this.projectConfigs.configureConfig.binaryDir}\\bin\\${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}"`
+      await $`powershell -Command ${runTargetCommand}`.pipe(process.stderr)
     } else {
       await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ${this.projectConfigs.configureConfig.binaryDir}/bin/${this.projectConfigs.launchConfig.target} ${this.projectConfigs.launchConfig.args}`.pipe(process.stderr)
     }
   }
 
   runTest = async function () {
-    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}`.pipe(process.stderr)
+    if (process.platform === 'win32') {
+      const runTestCommand = `"Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}"`
+      await $`powershell -Command ${runTestCommand}`.pipe(process.stderr)
+    } else {
+      await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}`.pipe(process.stderr)
+    }
   }
 
   cpack = async function () {
-    await $`cd ${this.projectConfigs.configureConfig.binaryDir} && cpack`.pipe(process.stderr)
+    if (process.platform === 'win32') {
+      const cpackCommand = `"Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;cd ${this.projectConfigs.configureConfig.binaryDir};cpack"`
+      await $`powershell -Command ${cpackCommand}`.pipe(process.stderr)
+    } else {
+      await $`cd ${this.projectConfigs.configureConfig.binaryDir} && cpack`.pipe(process.stderr)
+    }
   }
 }
 
