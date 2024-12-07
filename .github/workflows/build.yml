@@ -44,6 +44,7 @@ jobs:
 
       - name: Project setup
         run: |
+          cat ~/.bashrc
           source ~/.bashrc
           tsx project.mts setup ${{matrix.cmake_preset}}
 
