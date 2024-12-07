@@ -12,7 +12,7 @@ on:
 # env:
 defaults:
   run:
-    shell: bash -leo pipefail {0}
+    shell: ${{ matrix.os == 'windows-2022' && 'powershell' || 'bash -leo pipefail {0}' }}
 jobs:
   build:
     runs-on: ${{matrix.os}}
@@ -46,6 +46,7 @@ jobs:
 
       - name: Project setup
         run: |
+          echo $PATH
           tsx project.mts setup ${{matrix.cmake_preset}}
 
       - name: Cmake configure
