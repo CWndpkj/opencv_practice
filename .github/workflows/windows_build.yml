@@ -1,4 +1,4 @@
-name: build
+name: windows_build
 on:
   pull_request:
   release:
@@ -12,10 +12,10 @@ on:
 # env:
 defaults:
   run:
-    shell: ${{ matrix.os == 'windows-2022' && 'powershell' || 'bash -leo pipefail {0}' }}
+    shell: powershell
 jobs:
   build:
-    runs-on: ${{matrix.os}}
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -25,28 +25,16 @@ jobs:
             cmake_preset:
               - "windows-msvc-debug-developer-mode"
 
-          - os: ubuntu-22.04
-            compiler: gcc-13
-            cmake_preset:
-              - "unixlike-gcc-debug"
     steps:
       - uses: actions/checkout@v4
 
-      - name: Unix Setup Tools
-        if: runner.os != 'Windows'
-        run: |
-          cd ./scripts
-          source ./setup.sh
-
-      - name: Windows Setup Tools
-        if: runner.os == 'Windows'
+      - name: Setup Tools
         run: |
           cd ./scripts
           ./setup.bat
 
       - name: Project setup
         run: |
-          echo $PATH
           tsx project.mts setup ${{matrix.cmake_preset}}
 
       - name: Cmake configure
