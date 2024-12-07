@@ -255,7 +255,7 @@ class PackageManager {
 
   installConan = async function () {
     if (process.platform === 'win32') {
-      if (!await this.commandExists('conan') {
+      if (!await this.commandExists('conan')) {
         await this._chocoInstallPackage(['conan'])
       }
     }
