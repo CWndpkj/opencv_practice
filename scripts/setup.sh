@@ -28,4 +28,5 @@ echo "zx installation completed."
 
 echo "installing build environment..."
 source ~/.bashrc
+
 tsx setupEnv.mts
