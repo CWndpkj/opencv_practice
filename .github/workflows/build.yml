@@ -29,32 +29,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Tools
-        working-directory: ${{ github.workspace }}
+      - name: Unix Setup Tools
+        if: runner.os != 'Windows'
         run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-          ./scripts/setup.bat
+          cd ./scripts
+          source ./setup.sh
+
+      - name: Windows Setup Tools
+        if: runner.os == 'Windows'
+        run: |
+          cd ./scripts
+          ./setup.bat
           RefreshEnv.cmd
-          else
-            source ./scripts/setup.sh
-          fi
 
       - name: Project setup
-        working-directory: ${{ github.workspace }}
         run: tsx project.mts setup ${{matrix.cmake_preset}}
 
       - name: Cmake configure
-        working-directory: ${{ github.workspace }}
         run: tsx project.mts config
 
       - name: Cmake build
-        working-directory: ${{ github.workspace }}
         run: tsx project.mts build
 
       - name: Cmake test
-        working-directory: ${{ github.workspace }}
         run: tsx project.mts test
 
       - name: Cmake pack
-        working-directory: ${{ github.workspace }}
         run: tsx project.mts pack
