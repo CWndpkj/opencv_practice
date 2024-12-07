@@ -159,7 +159,7 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-     setupMSVCDevCmd(
+      setupMSVCDevCmd(
         "x64",
         MSVCInstallDir,
         undefined,
@@ -175,6 +175,17 @@ class Excutor {
   }
 
   cmakeBuild = async function () {
+    if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
+      setupMSVCDevCmd(
+        "x64",
+        MSVCInstallDir,
+        undefined,
+        undefined,
+        false,
+        false,
+        undefined
+      );
+    }
     await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
   }
 

@@ -1,4 +1,4 @@
-# UNKOWN: changed cmake_minimum_required feom 3.27 to 3.27 to prevent compile error
+# UNKOWN: changed cmake_minimum_required from 3.21 to 3.27 to prevent compile error
 cmake_minimum_required(VERSION 3.27)
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "cmake/ConanProvider.cmake")
 # This template attempts to be "fetch_content"-able so that it works well with tools like CPM or
