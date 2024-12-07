@@ -1,0 +1,59 @@
+name: build
+on:
+  pull_request:
+  release:
+    types:
+      - published
+  push:
+    tags: ["*"]
+    branches:
+      - main
+      - dev
+# env:
+jobs:
+  build:
+    runs-on: ${{matix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - windows-2022
+        compiler:
+          - gcc-13
+        cmake_preset:
+          - "unixlike-gcc-debug"
+          - "windows-msvc-debug-developer-mode"
+        exclude:
+          - os: windows-2022
+            compiler: gcc-13
+        include:
+          - os: windows-2022
+            compiler: msvc
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unix Setup Tools
+        if: runner.os == 'Windows'
+        run: source ./script/setup.sh
+
+      - name: Windows Setup Tools
+        if: runner.os != 'Windows'
+        run: |
+          ./script/setup.bat
+          RefreshEnv.cmd
+
+      - name: Project setup
+        run: tsx project.mts setup ${{matrix.cmake_preset}}
+
+      - name: Cmake configure
+        run: tsx project.mts config
+
+      - name: Cmake build
+        run: tsx project.mts build
+
+      - name: Cmake test
+        run: tsx project.mts test
+
+      - name: Cmake pack
+        run: tsx project.mts pack

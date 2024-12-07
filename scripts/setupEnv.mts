@@ -171,7 +171,7 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        await this._chocoInstallPackage(['ninja', 'cmake'])
+        await this._chocoInstallPackage(['ninja', 'cmake','nsis'])
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
 

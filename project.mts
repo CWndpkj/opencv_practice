@@ -9,6 +9,7 @@ if (process.platform === 'win32') {
   $.shell = 'powershell'
 }
 
+
 // default is "set -euo pipefail;",
 // `-u`: Treat unset variables as an error and exit immediately.
 if (process.platform != 'win32') {
@@ -187,6 +188,7 @@ class Excutor {
         undefined
       );
       const cmakeBuildCommand = `"Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target}"`
+
       await $`powershell -Command ${cmakeBuildCommand}`.pipe(process.stderr)
     } else {
       await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
