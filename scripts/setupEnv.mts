@@ -172,8 +172,8 @@ class PackageManager {
   installToolchain = async function () {
     switch (this.packageManager) {
       case 'choco':
-        let pkgNeedInstall = ['ninja', 'cmake', 'nsis']
-        pkgNeedInstall.filter(async (pkg) => {
+        const pkgList = ['ninja', 'cmake', 'nsis']
+        const pkgNeedInstall = pkgList.filter(async (pkg) => {
           if (await this.commandExists(pkg)) {
             console.log(`${pkg} already installed`)
             return false
