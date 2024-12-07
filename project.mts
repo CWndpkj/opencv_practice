@@ -170,8 +170,9 @@ class Excutor {
       );
       const cmakeConfigreCommand = `"cmake -S . --preset=${this.projectConfigs.configureConfig.preset}"`
       await $`powershell -Command ${cmakeConfigreCommand}`.pipe(process.stderr)
-    } else
+    } else {
       await $`cmake -S . --preset=${this.projectConfigs.configureConfig.preset}`.pipe(process.stderr)
+    }
   }
 
   cmakeBuild = async function () {
@@ -186,8 +187,9 @@ class Excutor {
         undefined
       );
       await $`Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
-    } else
+    } else {
       await $`cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target} `.pipe(process.stderr)
+    }
   }
 
   runTarget = async function () {
@@ -201,8 +203,9 @@ class Excutor {
   runTest = async function () {
     if (process.platform === 'win32') {
       await $`Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}`.pipe(process.stderr)
+    } else {
+      await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}`.pipe(process.stderr)
     }
-    await $`source ${this.projectConfigs.configureConfig.binaryDir}/conan/build/${this.projectConfigs.configureConfig.buildType}/generators/conanrun.sh && ctest --preset ${this.projectConfigs.configureConfig.preset} ${this.projectConfigs.testConfig.ctestArgs}`.pipe(process.stderr)
   }
 
   cpack = async function () {

@@ -231,7 +231,6 @@ export function setupMSVCDevCmd(
     let old_value = old_env_vars[name];
     // For new variables "old_value === undefined".
     if (new_value !== old_value) {
-      console.info(`Setting ${name}`);
       // Special case for a bunch of PATH-like variables: vcvarsall.bat
       // just prepends its stuff without checking if its already there.
       // This makes repeated invocations of this action fail after some
