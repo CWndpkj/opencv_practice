@@ -45,7 +45,7 @@ class ConfigModifier {
     await this.modConan()
   }
   private windowsMod = async function () {
-    // await this.modPowerShell()
+    await this.modPowerShell()
   }
   // For linux to use System package manager to install packages
   private modConan = async function () {
