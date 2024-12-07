@@ -19,11 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-2022
-            compiler: msvc
-            cmake_preset:
-              - "windows-msvc-debug-developer-mode"
+        os:
+          - windows-2022
+        compiler:
+          - msvc
+        cmake_preset:
+          - "windows-msvc-debug-developer-mode"
 
     steps:
       - uses: actions/checkout@v4

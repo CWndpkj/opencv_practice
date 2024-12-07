@@ -19,11 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-22.04
-            compiler: gcc-13
-            cmake_preset:
-              - "unixlike-gcc-debug"
+        os:
+          - ubuntu-22.04
+        compiler:
+          - msvc
+        cmake_preset:
+          - "unixlike-gcc-debug"
     steps:
       - uses: actions/checkout@v4
 
@@ -34,21 +35,25 @@ jobs:
 
       - name: Project setup
         run: |
-          echo $PATH
+          source ./scripts/load_env.sh
           tsx project.mts setup ${{matrix.cmake_preset}}
 
       - name: Cmake configure
         run: |
+          source ./scripts/load_env.sh
           tsx project.mts config
 
       - name: Cmake build
         run: |
+          source ./scripts/load_env.sh
           tsx project.mts build
 
       - name: Cmake test
         run: |
+          source ./scripts/load_env.sh
           tsx project.mts test
 
       - name: Cmake pack
         run: |
+          source ./scripts/load_env.sh
           tsx project.mts pack

@@ -14,9 +14,7 @@ npm_install_packages() {
 install_node_npm() {
 	echo "Installing Node.js and npm..."
 	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.9/install.sh | bash
-	export NVM_DIR="$HOME/.nvm"
-	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+	source load_env.sh
 	nvm install --lts
 	npm_install_packages
 }

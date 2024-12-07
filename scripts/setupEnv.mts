@@ -51,10 +51,7 @@ class ConfigModifier {
   // For linux to use System package manager to install packages
   private modConan = async function () {
     const conanHome = `${process.env.HOME}/.conan2`
-    await $`export PYENV_ROOT="$HOME/.pyenv" &&
-            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" &&
-            eval "$(pyenv init -)" &&
-            conan profile detect --force`.pipe(process.stderr)
+    await $`source load_env.sh && conan profile detect --force`.pipe(process.stderr)
     const content = fs.readFileSync(`${conanHome}/global.conf`, 'utf8')
     if (content.includes("tools.system.package_manager:mode")) {
       console.log("conan global config already configured")
@@ -181,7 +178,7 @@ class PackageManager {
             return true
           }
         })
-        console.log("######## Installing packages: ", pkgNeedInstall,"#########")
+        console.log("######## Installing packages: ", pkgNeedInstall, "#########")
         await this._chocoInstallPackage(pkgNeedInstall)
         // FIXME: Doesn't work
         // await this._chocoInstallPackageWithArgs('visualstudio2022buildtools', [`--package-parameters "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --remove Microsoft.VisualStudio.Component.VC.CMake.Project --path install=${MSVCInstallDir}"`])
@@ -245,9 +242,7 @@ class PackageManager {
       await $`echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && 
             echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && 
             echo 'eval "$(pyenv init -)"' >> ~/.bashrc`.pipe(process.stderr)
-      await $`export PYENV_ROOT="$HOME/.pyenv" &&
-            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" &&
-            eval "$(pyenv init -)" &&
+      await $`source load_env.sh &&
             pyenv install -s 3 && 
             pyenv global 3 &&
             curl -s https://bootstrap.pypa.io/get-pip.py | python`.pipe(process.stderr)
@@ -330,9 +325,7 @@ class PackageManager {
   }
   _pipInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`export PYENV_ROOT="$HOME/.pyenv" &&
-            command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" &&
-            eval "$(pyenv init -)" &&
+      await $`source load_env.sh &&
             pip install ${pkg}`.pipe(process.stderr)
     }
   }
