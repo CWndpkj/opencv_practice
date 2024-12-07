@@ -29,6 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: show list
+        working-directory: ${{ github.workspace}}
+        run: ls 
+
       - name: Unix Setup Tools
         working-directory: ${{ github.workspace }}
         if: runner.os != 'Windows'
