@@ -34,7 +34,6 @@ jobs:
         run: |
           cd ./scripts
           source ./setup.sh
-          source ~/.bashrc
 
       - name: Windows Setup Tools
         if: runner.os == 'Windows'
@@ -45,20 +44,25 @@ jobs:
 
       - name: Project setup
         run: |
+          source ~/.bashrc
           tsx project.mts setup ${{matrix.cmake_preset}}
 
       - name: Cmake configure
         run: |
+          source ~/.bashrc
           tsx project.mts config
 
       - name: Cmake build
         run: |
+          source ~/.bashrc
           tsx project.mts build
 
       - name: Cmake test
         run: |
+          source ~/.bashrc
           tsx project.mts test
 
       - name: Cmake pack
         run: |
+          source ~/.bashrc
           tsx project.mts pack

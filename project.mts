@@ -3,12 +3,11 @@ import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
 import { MSVCInstallDir } from './scripts/consts.mjs'
 import { setupMSVCDevCmd } from './scripts/setupMSVCDev.mts'
+import { usePowerShell } from 'zx';
 
 if (process.platform === 'win32') {
-  $.quote = quotePowerShell
-  $.shell = 'powershell'
+  usePowerShell()
 }
-
 
 // default is "set -euo pipefail;",
 // `-u`: Treat unset variables as an error and exit immediately.

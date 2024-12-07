@@ -174,7 +174,7 @@ class PackageManager {
       case 'choco':
         let pkgNeedInstall = ['ninja', 'cmake', 'nsis']
         pkgNeedInstall.filter(async (pkg) => {
-          if (this.commandExists(pkg)) {
+          if (await this.commandExists(pkg)) {
             console.log(`${pkg} already installed`)
             return false
           } else {
@@ -230,8 +230,10 @@ class PackageManager {
   }
 
   installConfigPy = async function () {
-    if (process.platform === 'win32')
-      await this._chocoInstallPackage(['python'])
+    if (process.platform === 'win32') {
+      if (!await this.commandExists('python'))
+        await this._chocoInstallPackage(['python'])
+    }
     else {
       const home = process.env.HOME
       if (fs.existsSync(`${home}/.pyenv`)) {
@@ -252,10 +254,14 @@ class PackageManager {
   }
 
   installConan = async function () {
-    if (process.platform === 'win32')
-      await this._chocoInstallPackage(['conan'])
-    else
+    if (process.platform === 'win32') {
+      if (!await this.commandExists('conan') {
+        await this._chocoInstallPackage(['conan'])
+      }
+    }
+    else {
       await this._pipInstallPackage(['conan'])
+    }
   }
 
   detectSystemPackageManager = async function () {
