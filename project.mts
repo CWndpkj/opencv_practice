@@ -1,9 +1,12 @@
 import 'zx/globals'
 import { throws } from 'assert'
 import { PathOrFileDescriptor } from 'fs-extra'
-import { MSVCInstallDir } from './scripts/consts.mjs'
-import { setupMSVCDevCmd } from './scripts/setupMSVCDev.mts'
+import { MSVCInstallDir } from './scripts/constants.mjs'
+import { parseJsonFile, parseConfigFromJson, saveConfig2Json } from './scripts/utils/jsonHelper.mts'
 import { usePowerShell } from 'zx';
+import { EnvHelper, EnvOwner } from './scripts/envHelper.mts'
+
+const jsonNodeName = 'projectConfigs'
 
 if (process.platform === 'win32') {
   usePowerShell()
@@ -13,16 +16,6 @@ if (process.platform === 'win32') {
 // `-u`: Treat unset variables as an error and exit immediately.
 if (process.platform != 'win32') {
   $.prefix = "set -eo pipefail;"
-}
-
-function parseJson(json: PathOrFileDescriptor) {
-  try {
-    let content = fs.readFileSync(json, 'utf8')
-    return JSON.parse(content)
-  } catch (e) {
-    console.error('error:', e)
-    throws(e)
-  }
 }
 
 interface SetupConfig {
@@ -43,67 +36,81 @@ interface ChangeConfig {
   }
 }
 
-interface Config {
-  configPath: PathOrFileDescriptor
-  setup?: SetupConfig
-}
-
 class ProjectConfigs {
-  configPath: PathOrFileDescriptor
-  configureConfig: {
-    preset: string,
-    sourceDir: string,
-    binaryDir: string,
-    installDir: string,
-    buildType: string,
-  }
-  buildConfig: {
-    target: string,
-  }
-  launchConfig: {
-    target: string,
-    args: string,
-  }
-  testConfig: {
-    ctestArgs: string,
+  projectConfigs: {
+    configureConfig: {
+      preset: string,
+      sourceDir: string,
+      binaryDir: string,
+      installDir: string,
+      buildType: string,
+    }
+    buildConfig: {
+      target: string,
+    }
+    launchConfig: {
+      target: string,
+      args: string,
+    }
+    testConfig: {
+      ctestArgs: string,
+    }
   }
 
   changeConfig(config: ChangeConfig) {
     if (config.buildConfig) {
-      this.buildConfig = {
-        ...this.buildConfig,
+      this.projectConfigs.buildConfig = {
+        ...this.projectConfigs.buildConfig,
         target: config.buildConfig.target
       }
     }
     if (config.launchConfig) {
-      this.launchConfig = {
-        ...this.launchConfig,
+      this.projectConfigs.launchConfig = {
+        ...this.projectConfigs.launchConfig,
         target: config.launchConfig.target,
         args: config.launchConfig.args,
       }
     }
     if (config.testConfig) {
-      this.testConfig = {
-        ...this.testConfig,
+      this.projectConfigs.testConfig = {
+        ...this.projectConfigs.testConfig,
         ctestArgs: config.testConfig.ctestArgs,
       }
     }
-    this._save2File(this.configPath)
+    saveConfig2Json(jsonNodeName, this.projectConfigs)
   }
 
-  constructor(config: Config) {
-    this.configPath = config.configPath
-    if (config.setup) {
-      this._setup(config.setup)
+  constructor(setupConfig?: SetupConfig) {
+    this.projectConfigs = {
+      configureConfig: {
+        preset: '',
+        sourceDir: '',
+        binaryDir: '',
+        installDir: '',
+        buildType: '',
+      },
+      buildConfig: {
+        target: '',
+      },
+      launchConfig: {
+        target: '',
+        args: '',
+      },
+      testConfig: {
+        ctestArgs: '',
+      }
+    }
+    if (setupConfig) {
+      this._setup(setupConfig)
     }
     else
       try {
-        const parsedConfig = this._fromJson(config.configPath)
-        this.configureConfig = parsedConfig.configureConfig
-        this.buildConfig = parsedConfig.buildConfig
-        this.launchConfig = parsedConfig.launchConfig
-        this.testConfig = parsedConfig.testConfig
-        this._save2File(config.configPath)
+        const parsedConfig = parseConfigFromJson(jsonNodeName)
+        this.projectConfigs.configureConfig = parsedConfig.configureConfig
+        this.projectConfigs.buildConfig = parsedConfig.buildConfig
+        this.projectConfigs.launchConfig = parsedConfig.launchConfig
+        this.projectConfigs.testConfig = parsedConfig.testConfig
+        saveConfig2Json(jsonNodeName, this.projectConfigs)
       } catch (e) {
         console.error('Unable to parse config from json file, possibly forgot to run setup first?')
       }
@@ -111,44 +118,38 @@ class ProjectConfigs {
 
   // NOTE: Change follow to set a default value for each config
   _setup = function (setupConfig: SetupConfig) {
-    const presets = parseJson(setupConfig.presetsFile)
+    const presets = parseJsonFile(setupConfig.presetsFile)
     // for replace
     const sourceDir = process.cwd()
     const presetName = setupConfig.selectedPreset
-    this.configureConfig = {
+    this.projectConfigs.configureConfig = {
       preset: setupConfig.selectedPreset,
-      sourceDir: process.cwd(),
+      sourceDir: sourceDir,
       binaryDir: presets.configurePresets[0].binaryDir.replace(/\$\{(.*?)\}/g, (_, p1) => eval(p1)),
       installDir: presets.configurePresets[0].installDir.replace(/\$\{(.*?)\}/g, (_, p1) => eval(p1)),
       buildType: presets.configurePresets.find(item => item.name == setupConfig.selectedPreset).cacheVariables.CMAKE_BUILD_TYPE,
     }
-    this.buildConfig = {
+    this.projectConfigs.buildConfig = {
       target: "all"
     }
-    this.launchConfig = {
+    this.projectConfigs.launchConfig = {
       target: "",
       args: "",
     }
-    this.testConfig = {
+    this.projectConfigs.testConfig = {
       ctestArgs: "",
     }
-    this._save2File('project.json')
-  }
-
-  _save2File = function (filePath: PathOrFileDescriptor) {
-    fs.writeFileSync(filePath, JSON.stringify(this, null, 2))
-  }
-
-  _fromJson(filePath: PathOrFileDescriptor) {
-    return parseJson(filePath)
+    saveConfig2Json(jsonNodeName, this.projectConfigs)
   }
 }
 
 class Excutor {
   projectConfigs: ProjectConfigs
+  envHelper: EnvHelper
 
-  constructor(config: ProjectConfigs) {
+  constructor(config: ProjectConfigs, envHelper: EnvHelper) {
     this.projectConfigs = config
+    this.envHelper = envHelper
   }
 
   clean = async function () {
@@ -159,15 +160,6 @@ class Excutor {
 
   cmakeConfigure = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      setupMSVCDevCmd(
-        "x64",
-        MSVCInstallDir,
-        undefined,
-        undefined,
-        false,
-        false,
-        undefined
-      );
       const cmakeConfigreCommand = `"cmake -S . --preset=${this.projectConfigs.configureConfig.preset}"`
       await $`powershell -Command ${cmakeConfigreCommand}`.pipe(process.stderr)
     } else {
@@ -177,15 +169,6 @@ class Excutor {
 
   cmakeBuild = async function () {
     if (this.projectConfigs.configureConfig.preset.includes('msvc')) {
-      setupMSVCDevCmd(
-        "x64",
-        MSVCInstallDir,
-        undefined,
-        undefined,
-        false,
-        false,
-        undefined
-      );
       const cmakeBuildCommand = `"Invoke-Environment ${this.projectConfigs.configureConfig.binaryDir}\\conan\\build\\${this.projectConfigs.configureConfig.buildType}\\generators\\conanrun.bat;cmake --build ${this.projectConfigs.configureConfig.binaryDir} --target ${this.projectConfigs.buildConfig.target}"`
 
       await $`powershell -Command ${cmakeBuildCommand}`.pipe(process.stderr)
@@ -265,7 +248,6 @@ function showHelp() {
 
 
 async function main() {
-  const configPath = 'project.json'
   const presetsFile = 'CMakePresets.json'
 
   console.log(argv)
@@ -303,12 +285,19 @@ async function main() {
       presetsFile,
       selectedPreset: myArgv._[1],
     }
-    new ProjectConfigs({ configPath, setup })
+    new ProjectConfigs(setup)
+    new EnvHelper().updateEnv()
     return
   }
 
-  const config = new ProjectConfigs({ configPath })
-  const excutor = new Excutor(config)
+  const config = new ProjectConfigs()
+  const envHelper = new EnvHelper()
+  const excutor = new Excutor(config, envHelper)
+
+  // setup env
+  if (process.platform === 'win32') {
+    this.envHelper.applyEnv(EnvOwner.MSVC)
+  }
 
   switch (myArgv._[0]) {
     case 'clean':

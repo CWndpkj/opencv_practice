@@ -1,19 +1,19 @@
-/// This script sets up the environment for the project
+/// This script installs all needed tools for development.
 /// It did the following things:
-/// 1. install build essentials and package manager(we use conan here)
+/// 1. install build essentials and package manager(we use conan)
 /// 2. configure conan's profile and global configuration
+/// 3. configure system tools like powershell profile and windows registry
 
 import { exec } from 'child_process';
 import { usePowerShell } from 'zx';
 import 'zx/globals';
-import { MSVCInstallDir } from './consts.mjs';
-import { findVcvarsall } from "./setupMSVCDev.mjs"
+import { MSVCInstallDir } from './constants.mjs';
+import { findVcvarsall } from "./findMSVC.mjs"
+import { EnvHelper } from './envHelper.mts';
 
 if (process.platform === 'win32') {
   usePowerShell()
-}
-
-if (process.platform != 'win32') {
+} else {
   $.prefix = "set -eo pipefail;"
 }
 
@@ -163,8 +163,10 @@ function Invoke-Environment {
 
 class PackageManager {
   packageManager: string
+  envHelper: EnvHelper
   constructor() {
     this.packageManager = ''
+    this.envHelper = new EnvHelper()
   }
   installToolchain = async function () {
     switch (this.packageManager) {
@@ -234,7 +236,7 @@ class PackageManager {
     }
     else {
       const home = process.env.HOME
-      if (fs.existsSync(`${home}/.pyenv`)) {
+      if (this.commandExists('pyenv')) {
         console.log("pyenv already installed")
         return
       }
@@ -242,8 +244,9 @@ class PackageManager {
       await $`echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && 
             echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && 
             echo 'eval "$(pyenv init -)"' >> ~/.bashrc`.pipe(process.stderr)
-      await $`source load_env.sh &&
-            pyenv install -s 3 && 
+      this.envHelper.setupPythonEnv()
+      this.envHelper.applyEnv('PYTHON')
+      await $`pyenv install -s 3 && 
             pyenv global 3 &&
             curl -s https://bootstrap.pypa.io/get-pip.py | python`.pipe(process.stderr)
     }
@@ -325,8 +328,7 @@ class PackageManager {
   }
   _pipInstallPackage = async function (packageList: string[]) {
     for (const pkg of packageList) {
-      await $`source load_env.sh &&
-            pip install ${pkg}`.pipe(process.stderr)
+      await $`pip install ${pkg}`.pipe(process.stderr)
     }
   }
 }
@@ -334,14 +336,12 @@ class PackageManager {
 async function main() {
   const configModifier = new ConfigModifier()
   configModifier.modSystem()
-
   const packageManager = new PackageManager()
   await packageManager.detectSystemPackageManager()
   console.log(`Detected package manager: ${packageManager.packageManager}`)
   await packageManager.installToolchain()
   await packageManager.installConfigPy()
   await packageManager.installConan()
-
   await configModifier.modConfig()
 }
 

@@ -25,7 +25,6 @@ jobs:
           - msvc
         cmake_preset:
           - "windows-msvc-debug-developer-mode"
-
     steps:
       - uses: actions/checkout@v4
 

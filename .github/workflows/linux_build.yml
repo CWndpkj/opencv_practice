@@ -22,7 +22,7 @@ jobs:
         os:
           - ubuntu-22.04
         compiler:
-          - msvc
+          - gcc-13
         cmake_preset:
           - "unixlike-gcc-debug"
     steps:

@@ -16,5 +16,6 @@
   },
   "testConfig": {
     "ctestArgs": ""
-  }
+  },
+  "nodeName": {}
 }
