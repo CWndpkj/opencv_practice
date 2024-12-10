@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.21)
+# UNKOWN: changed cmake_minimum_required from 3.21 to 3.27 to prevent compile error
+cmake_minimum_required(VERSION 3.27)
 set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES "cmake/ConanProvider.cmake")
 # This template attempts to be "fetch_content"-able so that it works well with tools like CPM or
 # other manual dependency management
@@ -21,7 +22,6 @@ project(
 
 # TODO:currently in develop mode, should be removed in productive environment
 set(myproject_PACKAGING_MAINTAINER_MODE ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/PreventInSourceBuilds.cmake)
 include(ProjectOptions.cmake)

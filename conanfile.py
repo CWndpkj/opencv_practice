@@ -15,7 +15,7 @@ class ConanApplication(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.user_presets_path = "CMakePresets.json"
+        tc.user_presets_path = False
         tc.generate()
 
     def requirements(self):
